@@ -1,0 +1,113 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "5.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Volo.Abp.Account": {
+      "version": "10.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "10.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Volo.Abp.Identity": {
+      "version": "10.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "10.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "10.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "10.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "10.1.0",
+      "isInstalled": true,
+      "creationTime": "03/11/2026 17:58:11 +00:00"
+    },
+    "Villsource.Abp.Workflow": {
+      "path": "modules/villsource.abp.workflow/Villsource.Abp.Workflow.abpmdl",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Villsource.Abp.Application": {
+      "path": "src/Villsource.Abp.Application/Villsource.Abp.Application.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Application.Tests": {
+      "path": "test/Villsource.Abp.Application.Tests/Villsource.Abp.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.Domain.Shared": {
+      "path": "src/Villsource.Abp.Domain.Shared/Villsource.Abp.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Application.Contracts": {
+      "path": "src/Villsource.Abp.Application.Contracts/Villsource.Abp.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.HttpApi": {
+      "path": "src/Villsource.Abp.HttpApi/Villsource.Abp.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.HttpApi.Client": {
+      "path": "src/Villsource.Abp.HttpApi.Client/Villsource.Abp.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.EntityFrameworkCore.Tests": {
+      "path": "test/Villsource.Abp.EntityFrameworkCore.Tests/Villsource.Abp.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.EntityFrameworkCore": {
+      "path": "src/Villsource.Abp.EntityFrameworkCore/Villsource.Abp.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.TestBase": {
+      "path": "test/Villsource.Abp.TestBase/Villsource.Abp.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.Domain.Tests": {
+      "path": "test/Villsource.Abp.Domain.Tests/Villsource.Abp.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/Villsource.Abp.HttpApi.Client.ConsoleTestApp/Villsource.Abp.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.DbMigrator": {
+      "path": "src/Villsource.Abp.DbMigrator/Villsource.Abp.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.HttpApi.Host": {
+      "path": "src/Villsource.Abp.HttpApi.Host/Villsource.Abp.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Domain": {
+      "path": "src/Villsource.Abp.Domain/Villsource.Abp.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

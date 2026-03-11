@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\common.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Villsource.Abp</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Villsource.Abp.Domain\Villsource.Abp.Domain.csproj" />
+    <ProjectReference Include="..\Villsource.Abp.Application.Contracts\Villsource.Abp.Application.Contracts.csproj" />
+    <ProjectReference Include="../../modules/villsource.abp.workflow/src/Villsource.Abp.Workflow.Application/Villsource.Abp.Workflow.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="10.1.0" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="10.1.0" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="10.1.0" />
+    <PackageReference Include="Volo.Abp.Account.Application" Version="10.1.0" />
+    <PackageReference Include="Volo.Abp.Identity.Application" Version="10.1.0" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="10.1.0" />
+  </ItemGroup>
+</Project>

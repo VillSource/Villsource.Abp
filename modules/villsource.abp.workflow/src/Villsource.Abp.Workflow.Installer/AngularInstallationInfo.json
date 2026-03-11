@@ -1,0 +1,46 @@
+﻿{
+  "packages":[
+    {
+      "appRoutingModuleConfiguration":{
+        "imports":[
+          {
+            "names":[
+              "WORKFLOW_ROUTES"
+            ],
+            "namespace": "@villsource.Abp/workflow"
+          } 
+        ],
+        "routes":[
+          "{ path: 'workflow', children: WORKFLOW_ROUTES, canActivate: [authGuard] }"
+        ]
+      },
+      "appModuleConfiguration":{
+        "imports":[
+          {
+            "names":[
+              "provideWorkflow"
+            ],
+            "namespace": "@villsource.Abp/workflow/config"
+          }
+        ],
+        "providerNames":[
+          "provideWorkflow()"
+        ]
+      },
+      "tsJsonPathRecordConfigurations":[
+        {
+          "name": "@villsource.Abp/workflow",
+          "paths": [
+            "angular/projects/workflow/src/public-api.ts"
+          ]
+        },
+        {
+          "name": "@villsource.Abp/workflow/config",
+          "paths": [
+            "angular/projects/workflow/config/src/public-api.ts"
+          ]
+        }
+      ]
+    }
+  ]
+}

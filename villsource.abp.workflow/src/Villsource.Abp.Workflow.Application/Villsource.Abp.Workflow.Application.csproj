@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Villsource.Abp.Workflow</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Mapperly" Version="10.1.0" />
+    <PackageReference Include="Volo.Abp.Ddd.Application" Version="10.1.0" />
+    <ProjectReference Include="..\Villsource.Abp.Workflow.Application.Contracts\Villsource.Abp.Workflow.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Villsource.Abp.Workflow.Domain\Villsource.Abp.Workflow.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

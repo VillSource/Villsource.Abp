@@ -1,0 +1,58 @@
+{
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Villsource.Abp.Workflow.Domain": {
+      "path": "src/Villsource.Abp.Workflow.Domain/Villsource.Abp.Workflow.Domain.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Workflow.Application.Contracts": {
+      "path": "src/Villsource.Abp.Workflow.Application.Contracts/Villsource.Abp.Workflow.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Workflow.Application": {
+      "path": "src/Villsource.Abp.Workflow.Application/Villsource.Abp.Workflow.Application.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Workflow.EntityFrameworkCore": {
+      "path": "src/Villsource.Abp.Workflow.EntityFrameworkCore/Villsource.Abp.Workflow.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Workflow.HttpApi": {
+      "path": "src/Villsource.Abp.Workflow.HttpApi/Villsource.Abp.Workflow.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Workflow.HttpApi.Client": {
+      "path": "src/Villsource.Abp.Workflow.HttpApi.Client/Villsource.Abp.Workflow.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Workflow.TestBase": {
+      "path": "test/Villsource.Abp.Workflow.TestBase/Villsource.Abp.Workflow.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.Workflow.EntityFrameworkCore.Tests": {
+      "path": "test/Villsource.Abp.Workflow.EntityFrameworkCore.Tests/Villsource.Abp.Workflow.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.Workflow.Domain.Tests": {
+      "path": "test/Villsource.Abp.Workflow.Domain.Tests/Villsource.Abp.Workflow.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.Workflow.Application.Tests": {
+      "path": "test/Villsource.Abp.Workflow.Application.Tests/Villsource.Abp.Workflow.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Villsource.Abp.Workflow.Domain.Shared": {
+      "path": "src/Villsource.Abp.Workflow.Domain.Shared/Villsource.Abp.Workflow.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Villsource.Abp.Workflow.Installer": {
+       "path": "src/Villsource.Abp.Workflow.Installer/Villsource.Abp.Workflow.Installer.abppkg",
+       "folder": "src"
+    }
+  }
+}

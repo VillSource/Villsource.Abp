@@ -1,0 +1,23 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+    </Configurations>
+
+    <Folder Name="/src/">
+        <Project Path="src/Villsource.Abp.Workflow.Domain.Shared/Villsource.Abp.Workflow.Domain.Shared.csproj" />
+        <Project Path="src/Villsource.Abp.Workflow.Domain/Villsource.Abp.Workflow.Domain.csproj" />
+        <Project Path="src/Villsource.Abp.Workflow.Application.Contracts/Villsource.Abp.Workflow.Application.Contracts.csproj" />
+        <Project Path="src/Villsource.Abp.Workflow.Application/Villsource.Abp.Workflow.Application.csproj" />
+        <Project Path="src/Villsource.Abp.Workflow.EntityFrameworkCore/Villsource.Abp.Workflow.EntityFrameworkCore.csproj" />
+        <Project Path="src/Villsource.Abp.Workflow.HttpApi/Villsource.Abp.Workflow.HttpApi.csproj" />
+        <Project Path="src/Villsource.Abp.Workflow.HttpApi.Client/Villsource.Abp.Workflow.HttpApi.Client.csproj" />
+        <Project Path="src/Villsource.Abp.Workflow.Installer/Villsource.Abp.Workflow.Installer.csproj" />
+    </Folder>
+    
+    <Folder Name="/test/">
+        <Project Path="test/Villsource.Abp.Workflow.TestBase/Villsource.Abp.Workflow.TestBase.csproj" />
+        <Project Path="test/Villsource.Abp.Workflow.EntityFrameworkCore.Tests/Villsource.Abp.Workflow.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="test/Villsource.Abp.Workflow.Domain.Tests/Villsource.Abp.Workflow.Domain.Tests.csproj" />
+        <Project Path="test/Villsource.Abp.Workflow.Application.Tests/Villsource.Abp.Workflow.Application.Tests.csproj" />
+    </Folder>
+</Solution>

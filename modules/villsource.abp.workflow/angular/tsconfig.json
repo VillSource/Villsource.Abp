@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.prod.json",
+  "compilerOptions": {
+    "paths": {
+      "@villsource.Abp/workflow": ["projects/workflow/src/public-api.ts"],
+      "@villsource.Abp/workflow/config": [
+        "projects/workflow/config/src/public-api.ts"
+      ]
+    }
+  }
+}

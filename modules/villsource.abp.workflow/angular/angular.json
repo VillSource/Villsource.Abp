@@ -1,0 +1,55 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "cli": {
+    "analytics": false
+  },
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "dev-app": {
+      "projectType": "application",
+      "root": "projects/dev-app",
+      "sourceRoot": "projects/dev-app/src"
+    },
+    "workflow": {
+      "projectType": "library",
+      "root": "projects/workflow",
+      "sourceRoot": "projects/workflow/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "options": {
+            "project": "projects/workflow/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/workflow/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/workflow/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/workflow/tsconfig.spec.json",
+            "buildTarget": "projects/workflow:build",
+            "runner": "vitest"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/workflow/**/*.ts",
+              "projects/workflow/**/*.html"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
