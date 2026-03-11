@@ -1,0 +1,8 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+    </Configurations>
+
+    <Project Path="Villsource.Abp/Villsource.Abp.csproj" />
+    <Project Path="Villsource.Abp.Tests/Villsource.Abp.Tests.csproj" />
+</Solution>
