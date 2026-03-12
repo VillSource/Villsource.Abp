@@ -2808,6 +2808,32 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
+"@primeuix/motion@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@primeuix/motion/-/motion-0.0.10.tgz#9af4238226042d80518dd343c6481d03582e374a"
+  integrity sha512-PsZwOPq79Scp7/ionshRcQ5xKVf9+zuLcyY5mf6onK8chHT5C9JGphmcIZ4CzcqxuGEpsm8AIbTGy+zS3RtzLA==
+  dependencies:
+    "@primeuix/utils" "^0.6.3"
+
+"@primeuix/styled@^0.7.4":
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/@primeuix/styled/-/styled-0.7.4.tgz#d2108a7fad297dea60d549b2c10ed744dc0cbc0e"
+  integrity sha512-QSO/NpOQg8e9BONWRBx9y8VGMCMYz0J/uKfNJEya/RGEu7ARx0oYW0ugI1N3/KB1AAvyGxzKBzGImbwg0KUiOQ==
+  dependencies:
+    "@primeuix/utils" "^0.6.1"
+
+"@primeuix/styles@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@primeuix/styles/-/styles-2.0.3.tgz#e42d14c138fe092683228d65a3f6de17de70d6a0"
+  integrity sha512-2ykAB6BaHzR/6TwF8ShpJTsZrid6cVIEBVlookSdvOdmlWuevGu5vWOScgIwqWwlZcvkFYAGR/SUV3OHCTBMdw==
+  dependencies:
+    "@primeuix/styled" "^0.7.4"
+
+"@primeuix/utils@^0.6.1", "@primeuix/utils@^0.6.3":
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/@primeuix/utils/-/utils-0.6.4.tgz#f436eae1be166662d424b8550a97ba0c150819e6"
+  integrity sha512-pZ5f+vj7wSzRhC7KoEQRU5fvYAe+RP9+m39CTscZ3UywCD1Y2o6Fe1rRgklMPSkzUcty2jzkA0zMYkiJBD1hgg==
+
 "@rolldown/binding-android-arm64@1.0.0-beta.47":
   version "1.0.0-beta.47"
   resolved "https://registry.yarnpkg.com/@rolldown/binding-android-arm64/-/binding-android-arm64-1.0.0-beta.47.tgz#13aa1d269fb312e8fed384f5902e1927653a0aa3"
@@ -7110,6 +7136,17 @@ prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
+
+primeng@21.1.0:
+  version "21.1.0"
+  resolved "https://registry.yarnpkg.com/primeng/-/primeng-21.1.0.tgz#3762088a74b925bacfe54f87e68797e34edd8d37"
+  integrity sha512-9yzUrxyPAH5KJrXtlwJn2oavAUYeEuyBlDQcVtMyf/21BC/Ty4hKECp/9pFINVt7Y7R3eoT0IBaKRsYlXGYb+Q==
+  dependencies:
+    "@primeuix/motion" "^0.0.10"
+    "@primeuix/styled" "^0.7.4"
+    "@primeuix/styles" "^2.0.3"
+    "@primeuix/utils" "^0.6.3"
+    tslib "^2.3.0"
 
 proc-log@^5.0.0:
   version "5.0.0"
