@@ -2,9 +2,9 @@
 
 public static class WorkflowDbProperties
 {
-    public static string DbTablePrefix { get; set; } = "Workflow";
+    public static string DbTablePrefix { get; set; } = "Villsource";
 
     public static string? DbSchema { get; set; } = null;
 
-    public const string ConnectionStringName = "Workflow";
+    public const string ConnectionStringName = "VillsourceWorkflow";
 }
