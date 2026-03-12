@@ -28,5 +28,9 @@ public class WorkflowHttpApiModule : AbpModule
                 .Get<WorkflowResource>()
                 .AddBaseTypes(typeof(AbpUiResource));
         });
+        Configure<AbpAspNetCoreMvcOptions>(options =>
+        {
+            options.ConventionalControllers.Create(typeof(WorkflowApplicationModule).Assembly);
+        });
     }
 }
