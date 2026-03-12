@@ -1,10 +1,12 @@
 ﻿using System;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.MultiTenancy;
 
 namespace Villsource.Abp.Workflow.Workflows;
 
-public class WorkflowTransaction : AuditedAggregateRoot<Guid>
+public class StateMachineTransaction : AuditedAggregateRoot<Guid>, IMultiTenant
 {
+    public Guid? TenantId {  get; set; }
     public Guid StateMachineId { get; set; }
     public Guid StateId { get; set; }
 

@@ -14,6 +14,7 @@ public class WorkflowDbContext : AbpDbContext<WorkflowDbContext>, IWorkflowDbCon
      public DbSet<StateMachine> StateMachines { get; set; }
      public DbSet<State> States { get; set; }
      public DbSet<Transition> Transitions { get; set; }
+     public DbSet<StateMachineTransaction> StateMachineTransactions { get; set; }
 
     public WorkflowDbContext(DbContextOptions<WorkflowDbContext> options)
         : base(options)

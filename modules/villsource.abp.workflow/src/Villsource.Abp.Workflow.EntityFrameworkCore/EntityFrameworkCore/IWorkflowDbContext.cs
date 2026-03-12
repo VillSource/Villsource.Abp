@@ -14,4 +14,5 @@ public interface IWorkflowDbContext : IEfCoreDbContext
      DbSet<StateMachine> StateMachines { get; }
      DbSet<State> States { get; }
      DbSet<Transition> Transitions { get; }
+     DbSet<StateMachineTransaction> StateMachineTransactions { get; }
 }

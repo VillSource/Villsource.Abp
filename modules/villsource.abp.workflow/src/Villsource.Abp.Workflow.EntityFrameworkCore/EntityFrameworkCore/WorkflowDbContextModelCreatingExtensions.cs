@@ -36,6 +36,8 @@ public static class WorkflowDbContextModelCreatingExtensions
         {
             workflow.ToTable(WorkflowDbProperties.DbTablePrefix + "StateMachine", WorkflowDbProperties.DbSchema);
             workflow.ConfigureByConvention();
+            workflow.HasIndex(x => x.TenantId);
+
             workflow
                 .HasMany(x => x.States)
                 .WithOne(x => x.StateMachine);
@@ -44,6 +46,8 @@ public static class WorkflowDbContextModelCreatingExtensions
         {
             state.ToTable(WorkflowDbProperties.DbTablePrefix + "States", WorkflowDbProperties.DbSchema);
             state.ConfigureByConvention();
+            state.HasIndex(x => x.TenantId);
+
             state.HasOne(x => x.StateMachine)
                 .WithMany(x => x.States)
                 .HasForeignKey(x => x.StateMachineId);
@@ -52,6 +56,7 @@ public static class WorkflowDbContextModelCreatingExtensions
         {
             transition.ToTable(WorkflowDbProperties.DbTablePrefix + "Transitions", WorkflowDbProperties.DbSchema);
             transition.ConfigureByConvention();
+            transition.HasIndex(x => x.TenantId);
 
             transition.HasOne(x => x.StateMachine)
                 .WithMany()
@@ -64,6 +69,18 @@ public static class WorkflowDbContextModelCreatingExtensions
                 .HasForeignKey(x => x.ToStateId);
             transition.OwnsOne(x => x.Condition);
         });
+        builder.Entity<StateMachineTransaction>(transaction =>
+        {
+            transaction.ToTable(WorkflowDbProperties.DbTablePrefix + "StateMachineTransactions", WorkflowDbProperties.DbSchema);
+            transaction.ConfigureByConvention();
+            transaction.HasIndex(x => x.TenantId);
 
+            transaction.HasOne(x => x.StateMachine)
+                .WithMany()
+                .HasForeignKey(x => x.StateMachineId);
+            transaction.HasOne(x => x.State)
+                .WithMany()
+                .HasForeignKey(x => x.StateId);
+        });
     }
 }

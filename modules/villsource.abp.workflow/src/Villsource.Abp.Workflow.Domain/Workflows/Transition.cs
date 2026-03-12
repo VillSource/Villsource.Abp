@@ -1,10 +1,12 @@
 ﻿using System;
 using Volo.Abp.Domain.Entities.Auditing;
+using Volo.Abp.MultiTenancy;
 
 namespace Villsource.Abp.Workflow.Workflows;
 
-public class Transition : AuditedAggregateRoot<Guid>
+public class Transition : AuditedAggregateRoot<Guid>, IMultiTenant
 {
+    public Guid? TenantId { get; set; }
     public Guid StateMachineId { get; set; }
     public Guid FromStateId { get; set; }
     public Guid ToStateId { get; set; }
