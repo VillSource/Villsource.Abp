@@ -12,7 +12,19 @@ export class WorkflowService {
   sample() {
     return this.restService.request<void, any>(
       { method: 'GET', url: '/api/workflow/example' },
-      { apiName: this.apiName }
+      { apiName: this.apiName },
     );
   }
+
+  addStateMachine(name: string, description: string) {
+    return this.restService.request<AddStateMachineDto, any>(
+      { method: 'POST', url: '/api/app/state-machine/workflow', body: { name, description } },
+      { apiName: this.apiName },
+    );
+  }
+}
+
+interface AddStateMachineDto {
+  name: string;
+  description: string;
 }

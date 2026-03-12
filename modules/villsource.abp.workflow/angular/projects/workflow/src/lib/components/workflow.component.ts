@@ -11,8 +11,8 @@ import { FormsModule } from '@angular/forms';
   template: `
     <p-button label="Add State Machine" (click)="showDialog()"></p-button>
     <div class="card" style="margin-top: 1rem;">
-      <p-table 
-        [value]="stateMachines" 
+      <p-table
+        [value]="stateMachines"
         [tableStyle]="{ 'min-width': '50rem' }"
         [paginator]="true"
         [rows]="5"
@@ -78,11 +78,11 @@ export class WorkflowComponent {
     { name: 'Purchase Order', description: 'PO request and approval' },
     { name: 'Leave Request', description: 'Employee leave management' },
     { name: 'Expense Claim', description: 'Expense reimbursement process' },
-    { name: 'IT Support', description: 'Ticket resolution workflow' }
+    { name: 'IT Support', description: 'Ticket resolution workflow' },
   ];
 
   constructor() {
-    this.service.sample().subscribe(console.log);
+    // this.service.addStateMachine('Test', 'Test').subscribe(console.log);
   }
 
   showDialog() {
@@ -90,18 +90,17 @@ export class WorkflowComponent {
   }
 
   onSave() {
+    const machine = {
+      name: this.machineName,
+      description: this.machineDescription,
+    };
     if (this.machineName) {
-      this.stateMachines = [
-        ...this.stateMachines,
-        {
-          name: this.machineName,
-          description: this.machineDescription,
-        }
-      ];
+      this.service.addStateMachine(machine.name, machine.description).subscribe(() => {
+        this.stateMachines = [...this.stateMachines, machine];
+        this.displayDialog = false;
+        this.machineName = '';
+        this.machineDescription = '';
+      });
     }
-    
-    this.displayDialog = false;
-    this.machineName = '';
-    this.machineDescription = '';
   }
 }
