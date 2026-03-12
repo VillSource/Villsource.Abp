@@ -38,24 +38,24 @@ public static class WorkflowDbContextModelCreatingExtensions
             workflow.ConfigureByConvention();
             workflow
                 .HasMany(x => x.States)
-                .WithOne(x => x.Workflow);
+                .WithOne(x => x.StateMachine);
         });
         builder.Entity<State>(state =>
         {
             state.ToTable(WorkflowDbProperties.DbTablePrefix + "States", WorkflowDbProperties.DbSchema);
             state.ConfigureByConvention();
-            state.HasOne(x => x.Workflow)
+            state.HasOne(x => x.StateMachine)
                 .WithMany(x => x.States)
-                .HasForeignKey(x => x.WorkflowId);
+                .HasForeignKey(x => x.StateMachineId);
         });
         builder.Entity<Transition>(transition =>
         {
             transition.ToTable(WorkflowDbProperties.DbTablePrefix + "Transitions", WorkflowDbProperties.DbSchema);
             transition.ConfigureByConvention();
 
-            transition.HasOne(x => x.Workflow)
+            transition.HasOne(x => x.StateMachine)
                 .WithMany()
-                .HasForeignKey(x => x.WorkflowId);
+                .HasForeignKey(x => x.StateMachineId);
             transition.HasOne(x => x.FromState)
                 .WithMany()
                 .HasForeignKey(x => x.FromStateId);
