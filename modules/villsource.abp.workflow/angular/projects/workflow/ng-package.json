@@ -4,6 +4,7 @@
   "lib": {
     "entryFile": "src/public-api.ts"
   },
+  "assets": ["src/_styles.scss"],
   "allowedNonPeerDependencies": [
     "@abp/ng.core",
     "@abp/ng.oauth",

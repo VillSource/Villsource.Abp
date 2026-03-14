@@ -1,7 +1,4 @@
 <Solution>
-    <Configurations>
-        <Platform Name="Any CPU" />
-    </Configurations>
     <Folder Name="/src/">
         <Project Path="src/Villsource.Abp.Domain/Villsource.Abp.Domain.csproj" />
         <Project Path="src/Villsource.Abp.Application/Villsource.Abp.Application.csproj" />
@@ -19,16 +16,6 @@
         <Project Path="test/Villsource.Abp.TestBase/Villsource.Abp.TestBase.csproj" />
         <Project Path="test/Villsource.Abp.Domain.Tests/Villsource.Abp.Domain.Tests.csproj" />
         <Project Path="test/Villsource.Abp.HttpApi.Client.ConsoleTestApp/Villsource.Abp.HttpApi.Client.ConsoleTestApp.csproj" />
-    </Folder>
-    <Folder Name="/modules/">
-        <Project Path="modules/poc/src/POC.Domain.Shared/POC.Domain.Shared.csproj" />
-        <Project Path="modules/poc/src/POC.Domain/POC.Domain.csproj" />
-        <Project Path="modules/poc/src/POC.Application.Contracts/POC.Application.Contracts.csproj" />
-        <Project Path="modules/poc/src/POC.Application/POC.Application.csproj" />
-        <Project Path="modules/poc/src/POC.EntityFrameworkCore/POC.EntityFrameworkCore.csproj" />
-        <Project Path="modules/poc/src/POC.HttpApi/POC.HttpApi.csproj" />
-        <Project Path="modules/poc/src/POC.HttpApi.Client/POC.HttpApi.Client.csproj" />
-        <Project Path="modules/poc/src/POC.Installer/POC.Installer.csproj" />
     </Folder>
     <Folder Name="/workflow/">
         <Project Path="modules/villsource.abp.workflow/src/Villsource.Abp.Workflow.Domain.Shared/Villsource.Abp.Workflow.Domain.Shared.csproj" />

@@ -22,9 +22,21 @@ export class WorkflowService {
       { apiName: this.apiName },
     );
   }
+
+  addState(name: string, description: string) {
+    return this.restService.request<StateDto, any>(
+      { method: 'POST', url: '/api/app/state-machine/state', body: { name, description } },
+      { apiName: this.apiName },
+    );
+  }
 }
 
 interface AddStateMachineDto {
+  name: string;
+  description: string;
+}
+
+interface StateDto {
   name: string;
   description: string;
 }

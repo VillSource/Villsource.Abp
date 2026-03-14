@@ -6569,6 +6569,13 @@ neo-async@^2.6.2:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+ng-diagram@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/ng-diagram/-/ng-diagram-1.1.1.tgz#d0b5a5d8c594f35aa3aa6348d4a99931de6370ba"
+  integrity sha512-4KGnvuKCQ2rCDZmWCFC87QS/5bKvT92p4CGJT2VnekAPacCW2Y+kMfXo9/SxvBxpqVQIVLkXdcjYgd3OYZCYkQ==
+  dependencies:
+    tslib "^2.3.0"
+
 ng-packagr@~21.0.0:
   version "21.0.1"
   resolved "https://registry.yarnpkg.com/ng-packagr/-/ng-packagr-21.0.1.tgz#cabb1382c3a4a2710379b4733f81973db5d53aa9"
