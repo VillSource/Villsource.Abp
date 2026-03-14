@@ -105,7 +105,7 @@ import { provideNgDiagram } from 'ng-diagram';
       }
 
       <div class="list-panel" [class.full-height]="!diagramVisible">
-        <lib-workflow-properties></lib-workflow-properties>
+        <lib-workflow-properties (saved)="refreshStates()"></lib-workflow-properties>
 
         <div class="section-header">
           <h2 style="margin: 0;">State Machines</h2>
@@ -290,6 +290,14 @@ export class WorkflowComponent {
     this.service.getStates(machine.id).subscribe(states => {
       this.selectedStates.set(states);
     });
+  }
+
+  refreshStates() {
+    if (this.selectedMachine) {
+      this.service.getStates(this.selectedMachine.id).subscribe(states => {
+        this.selectedStates.set(states);
+      });
+    }
   }
 
   updateNodePosition(event: { id: string; x: number; y: number }) {

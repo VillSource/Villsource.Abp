@@ -64,6 +64,17 @@ export class WorkflowService {
       { apiName: this.apiName },
     );
   }
+
+  updateState(id: string, name: string, description: string, concurrencyStamp?: string) {
+    return this.restService.request<any, void>(
+      {
+        method: 'PUT',
+        url: `/api/app/state-machine/${id}/state`,
+        body: { name, description, concurrencyStamp },
+      },
+      { apiName: this.apiName },
+    );
+  }
 }
 
 export interface StateMachineListDto {
@@ -81,6 +92,7 @@ export interface StateListDto {
   description: string;
   positionX: number;
   positionY: number;
+  concurrencyStamp?: string;
 }
 
 interface AddStateMachineDto {

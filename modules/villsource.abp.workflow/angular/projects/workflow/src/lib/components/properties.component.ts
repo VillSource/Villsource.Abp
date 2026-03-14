@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal, output, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -6,7 +6,11 @@ import { CardModule } from 'primeng/card';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { DividerModule } from 'primeng/divider';
 import { TextareaModule } from 'primeng/textarea';
+import { ButtonModule } from 'primeng/button';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { NgDiagramModelService, NgDiagramSelectionService } from 'ng-diagram';
+import { WorkflowService } from '../services/workflow.service';
 
 @Component({
   selector: 'lib-workflow-properties',
@@ -19,8 +23,12 @@ import { NgDiagramModelService, NgDiagramSelectionService } from 'ng-diagram';
     FloatLabelModule,
     DividerModule,
     TextareaModule,
+    ButtonModule,
+    ToastModule,
   ],
+  providers: [MessageService],
   template: `
+    <p-toast></p-toast>
     <p-card *ngIf="selectedNode() || selectedEdge()" styleClass="properties-card">
       <ng-template pTemplate="header">
         <div class="properties-header">
@@ -41,9 +49,19 @@ import { NgDiagramModelService, NgDiagramSelectionService } from 'ng-diagram';
             <p-floatLabel variant="on">
               <input
                 pInputText
+                id="node-id"
+                [ngModel]="nodeId()"
+                [disabled]="true"
+              />
+              <label for="node-id">State ID (Read-only)</label>
+            </p-floatLabel>
+
+            <p-floatLabel variant="on">
+              <input
+                pInputText
                 id="node-name"
-                [ngModel]="nodeLabel()"
-                (ngModelChange)="updateNodeLabel($event)"
+                [(ngModel)]="editName"
+                (ngModelChange)="onNameChange($event)"
               />
               <label for="node-name">State Name</label>
             </p-floatLabel>
@@ -52,12 +70,22 @@ import { NgDiagramModelService, NgDiagramSelectionService } from 'ng-diagram';
               <textarea
                 pInputTextarea
                 id="node-desc"
-                [ngModel]="$any(node.data).description"
-                (ngModelChange)="updateNodeDescription($event)"
+                [(ngModel)]="editDescription"
+                (ngModelChange)="onDescriptionChange($event)"
                 rows="3"
               ></textarea>
               <label for="node-desc">Description</label>
             </p-floatLabel>
+
+            <div class="save-actions">
+              <p-button 
+                label="Save Changes" 
+                icon="pi pi-save" 
+                severity="success"
+                [loading]="saving()"
+                (click)="saveNode()"
+              ></p-button>
+            </div>
           </div>
         </div>
 
@@ -143,6 +171,11 @@ import { NgDiagramModelService, NgDiagramSelectionService } from 'ng-diagram';
         min-height: 100px;
         resize: vertical;
       }
+      .save-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1rem;
+      }
       @keyframes fa-spin {
         0% {
           transform: rotate(0deg);
@@ -157,30 +190,101 @@ import { NgDiagramModelService, NgDiagramSelectionService } from 'ng-diagram';
 export class PropertiesComponent {
   private modelService = inject(NgDiagramModelService);
   private selectionService = inject(NgDiagramSelectionService);
+  private workflowService = inject(WorkflowService);
+  private messageService = inject(MessageService);
+
+  saved = output<void>();
 
   selection = this.selectionService.selection;
   selectedNode = computed(() => this.selection().nodes[0] ?? null);
   selectedEdge = computed(() => this.selection().edges[0] ?? null);
 
-  nodeLabel = computed(() => (this.selectedNode()?.data as any)?.label ?? '');
+  nodeId = computed(() => this.selectedNode()?.id ?? '');
+  
+  editName = '';
+  editDescription = '';
+  saving = signal(false);
+
+  constructor() {
+    effect(() => {
+      const node = this.selectedNode();
+      untracked(() => {
+        if (node) {
+          const data = node.data as any;
+          this.editName = data.label || '';
+          this.editDescription = data.description || '';
+        } else {
+          this.editName = '';
+          this.editDescription = '';
+        }
+      });
+    });
+  }
+
+  onNameChange(value: string) {
+    const node = this.selectedNode();
+    if (node) {
+      this.modelService.updateNodeData(node.id, { 
+        ...node.data,
+        label: value 
+      });
+    }
+  }
+
+  onDescriptionChange(value: string) {
+    const node = this.selectedNode();
+    if (node) {
+      this.modelService.updateNodeData(node.id, { 
+        ...node.data,
+        description: value 
+      });
+    }
+  }
+
+  saveNode() {
+    const node = this.selectedNode();
+    if (!node) return;
+
+    const data = node.data as any;
+    this.saving.set(true);
+    
+    this.workflowService.updateState(
+      node.id, 
+      this.editName, 
+      this.editDescription, 
+      data.concurrencyStamp
+    ).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Success', 
+          detail: 'State updated successfully' 
+        });
+        this.saved.emit();
+      },
+      error: (err) => {
+        this.saving.set(false);
+        let detail = 'Concurrency conflict or server error';
+        if (err.status === 409 || err.error?.error?.code === 'AbpDbConcurrencyException') {
+          detail = 'This state was modified by another user. Please refresh and try again.';
+        } else if (err.error?.error?.message) {
+          detail = err.error.error.message;
+        }
+        
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error', 
+          detail: detail
+        });
+      }
+    });
+  }
+
   edgeLabel = computed(() => {
     const edge = this.selectedEdge() as any;
     return edge?.labels?.[0]?.data?.['label'] ?? edge?.data?.label ?? '';
   });
-
-  updateNodeLabel(value: string) {
-    const node = this.selectedNode();
-    if (node) {
-      this.modelService.updateNodeData(node.id, { label: value });
-    }
-  }
-
-  updateNodeDescription(value: string) {
-    const node = this.selectedNode();
-    if (node) {
-      this.modelService.updateNodeData(node.id, { description: value });
-    }
-  }
 
   updateEdgeLabel(value: string) {
     const edge = this.selectedEdge();

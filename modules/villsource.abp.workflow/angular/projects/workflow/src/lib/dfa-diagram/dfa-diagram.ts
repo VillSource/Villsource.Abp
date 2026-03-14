@@ -40,7 +40,7 @@ export class DfaDiagram {
   });
 
   initialStates = input<
-    { id: string; name: string; description: string; positionX: number; positionY: number }[]
+    { id: string; name: string; description: string; positionX: number; positionY: number; concurrencyStamp?: string }[]
   >([]);
 
   nodeSelected = output<{ id: string; name: string; description: string } | null>();
@@ -133,7 +133,7 @@ export class DfaDiagram {
           const newNodes: Node[] = nodesToAdd.map(s => ({
             id: s.id,
             position: { x: s.positionX ?? 0, y: s.positionY ?? 0 },
-            data: { label: s.name, description: s.description },
+            data: { label: s.name, description: s.description, concurrencyStamp: s.concurrencyStamp },
           }));
           this.modelService.addNodes(newNodes);
         }

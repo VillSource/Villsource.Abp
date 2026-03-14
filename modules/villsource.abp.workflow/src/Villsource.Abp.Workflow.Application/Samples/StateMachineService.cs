@@ -51,7 +51,8 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
             Name = inserted.Name,
             Description = inserted.Description,
             PositionX = state.PositionX,
-            PositionY = state.PositionY
+            PositionY = state.PositionY,
+            ConcurrencyStamp = inserted.ConcurrencyStamp
         };
     }
 
@@ -101,7 +102,17 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
             Name = s.Name,
             Description = s.Description,
             PositionX = s.GetProperty<double>("PositionX"),
-            PositionY = s.GetProperty<double>("PositionY")
+            PositionY = s.GetProperty<double>("PositionY"),
+            ConcurrencyStamp = s.ConcurrencyStamp
         }).ToList();
+    }
+
+    public async Task UpdateState(Guid id, UpdateStateDto input)
+    {
+        var entity = await _stateRepository.GetAsync(id);
+        entity.Name = input.Name;
+        entity.Description = input.Description;
+        entity.ConcurrencyStamp = input.ConcurrencyStamp;
+        await _stateRepository.UpdateAsync(entity);
     }
 }
