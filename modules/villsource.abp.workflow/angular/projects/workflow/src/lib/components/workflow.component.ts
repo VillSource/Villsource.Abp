@@ -105,8 +105,8 @@ import { provideNgDiagram } from 'ng-diagram';
       }
 
       <div class="list-panel" [class.full-height]="!diagramVisible">
-        <lib-workflow-properties 
-          [syncing]="positionSyncing()" 
+        <lib-workflow-properties
+          [syncing]="positionSyncing()"
           (saved)="refreshStates()"
         ></lib-workflow-properties>
 
@@ -305,17 +305,28 @@ export class WorkflowComponent {
   }
 
   updateNodePosition(event: { id: string; x: number; y: number }) {
+    // Optimistically update the local state positions so that
+    // next operations (like adding a state) use the correct coordinates.
+    const currentStates = this.selectedStates();
+    const updatedStates = currentStates.map(s =>
+      s.id === event.id ? { ...s, positionX: event.x, positionY: event.y } : s,
+    );
+    this.selectedStates.set(updatedStates);
+
     this.positionSyncing.set(true);
     this.service.updateStatePosition(event.id, event.x, event.y).subscribe({
       next: res => {
-        const currentStates = this.selectedStates();
-        const updatedStates = currentStates.map(s => (s.id === event.id ? { ...s, concurrencyStamp: res.concurrencyStamp } : s));
-        this.selectedStates.set(updatedStates);
+        // Update the concurrency stamp returned by the server
+        const states = this.selectedStates();
+        const syncedStates = states.map(s =>
+          s.id === event.id ? { ...s, concurrencyStamp: res.concurrencyStamp } : s,
+        );
+        this.selectedStates.set(syncedStates);
         this.positionSyncing.set(false);
       },
       error: () => {
         this.positionSyncing.set(false);
-      }
+      },
     });
   }
 
@@ -333,8 +344,10 @@ export class WorkflowComponent {
   onStateSave() {
     if (this.stateName && this.selectedMachine) {
       // Calculate a default position for the new node (e.g., at the end)
-      const x = (this.selectedStates().length ?? 0) * 250;
-      const y = 0;
+      const states = this.selectedStates();
+      const lastState = states.length > 0 ? states[states.length - 1] : null;
+      const x = lastState ? (lastState.positionX ?? 0) + 250 : 0;
+      const y = lastState ? (lastState.positionY ?? 0) : 0;
 
       this.service
         .addState(this.stateName, this.stateDescription, this.selectedMachine.id, x, y)
@@ -342,15 +355,15 @@ export class WorkflowComponent {
           this.displayStateDialog = false;
           const newState = {
             id: res.id,
-            name: this.stateName,
-            description: this.stateDescription,
-            positionX: x,
-            positionY: y,
+            name: res.name,
+            description: res.description,
+            positionX: res.positionX,
+            positionY: res.positionY,
+            concurrencyStamp: res.concurrencyStamp,
           };
           this.stateName = '';
           this.stateDescription = '';
 
-          var states = this.selectedStates();
           this.selectedStates.set([...states, newState]);
           this.selectedMachine!.stateCount++; // Optimistic update
         });
