@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { RestService } from '@abp/ng.core';
+import { PagedAndSortedResultRequestDto, PagedResultDto, RestService } from '@abp/ng.core';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +29,22 @@ export class WorkflowService {
       { apiName: this.apiName },
     );
   }
+
+  getList(input: PagedAndSortedResultRequestDto) {
+    return this.restService.request<PagedAndSortedResultRequestDto, PagedResultDto<StateMachineListDto>>(
+      { method: 'GET', url: '/api/app/state-machine', params: input },
+      { apiName: this.apiName },
+    );
+  }
+}
+
+export interface StateMachineListDto {
+  id: string;
+  name: string;
+  description: string;
+  stateCount: number;
+  creatorId: string;
+  creationTime: string;
 }
 
 interface AddStateMachineDto {

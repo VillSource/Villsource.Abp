@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { WorkflowService } from '../services/workflow.service';
 import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -24,20 +25,28 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
         [paginator]="true"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 20]"
-        [totalRecords]="1000"
+        [totalRecords]="totalRecords"
         (onLazyLoad)="loadData($event)"
         [loading]="loading"
       >
         <ng-template #header>
           <tr>
+            <th>ID</th>
             <th>Name</th>
             <th>Description</th>
+            <th>States</th>
+            <th>Created By</th>
+            <th>Created Date</th>
           </tr>
         </ng-template>
         <ng-template #body let-machine>
           <tr>
+            <td>{{ machine.id }}</td>
             <td>{{ machine.name }}</td>
             <td>{{ machine.description }}</td>
+            <td>{{ machine.stateCount }}</td>
+            <td>{{ machine.creatorId }}</td>
+            <td>{{ machine.creationTime | date: 'short' }}</td>
           </tr>
         </ng-template>
       </p-table>
@@ -102,7 +111,7 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
     </p-dialog>
   `,
   standalone: true,
-  imports: [ButtonModule, TableModule, DialogModule, InputTextModule, FormsModule, DfaDiagram],
+  imports: [ButtonModule, TableModule, DialogModule, InputTextModule, FormsModule, DfaDiagram, DatePipe],
 })
 export class WorkflowComponent {
   protected readonly service = inject(WorkflowService);
@@ -117,29 +126,29 @@ export class WorkflowComponent {
   stateName = '';
   stateDescription = '';
 
-  stateMachines = [
-    { name: 'Approval Workflow', description: 'Basic document approval' },
-    { name: 'Onboarding', description: 'Employee onboarding process' },
-    { name: 'Purchase Order', description: 'PO request and approval' },
-    { name: 'Leave Request', description: 'Employee leave management' },
-    { name: 'Expense Claim', description: 'Expense reimbursement process' },
-    { name: 'IT Support', description: 'Ticket resolution workflow' },
-  ];
+  stateMachines: any[] = [];
+  totalRecords = 0;
 
   loading = false;
   loadData(event: TableLazyLoadEvent) {
     this.loading = true;
 
-    const page = (event.first ?? 0) / (event.rows ?? 10);
+    const input = {
+      maxResultCount: event.rows ?? 5,
+      skipCount: event.first ?? 0,
+      sorting: event.sortField ? `${event.sortField} ${event.sortOrder === 1 ? 'ASC' : 'DESC'}` : '',
+    };
 
-    this.stateMachines = [];
-    for (let i = 0; i <= (event.rows ?? 10); i++) {
-      this.stateMachines.push({
-        name: `Machine ${page * (event.rows ?? 10) + i}`,
-        description: `Description ${page * (event.rows ?? 10) + i}`,
-      });
-    }
-    this.loading = false;
+    this.service.getList(input).subscribe({
+      next: (data) => {
+        this.stateMachines = data.items;
+        this.totalRecords = data.totalCount;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      },
+    });
   }
 
   constructor() {}
@@ -153,16 +162,12 @@ export class WorkflowComponent {
   }
 
   onSave() {
-    const machine = {
-      name: this.machineName,
-      description: this.machineDescription,
-    };
     if (this.machineName) {
-      this.service.addStateMachine(machine.name, machine.description).subscribe(() => {
-        this.stateMachines = [...this.stateMachines, machine];
+      this.service.addStateMachine(this.machineName, this.machineDescription).subscribe(() => {
         this.displayDialog = false;
         this.machineName = '';
         this.machineDescription = '';
+        this.loadData({}); // Refresh list
       });
     }
   }

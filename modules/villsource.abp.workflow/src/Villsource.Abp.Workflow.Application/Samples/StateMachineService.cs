@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Villsource.Abp.Workflow.Workflows;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 
 namespace Villsource.Abp.Workflow.Samples;
@@ -38,5 +42,36 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
             StateMachineId = machine?.Id ?? Guid.Empty
         };
         await _stateRepository.InsertAsync(entity);
+    }
+
+    public async Task<PagedResultDto<StateMachineListDto>> GetListAsync(PagedAndSortedResultRequestDto input)
+    {
+        if (input.Sorting.IsNullOrWhiteSpace())
+        {
+            input.Sorting = nameof(StateMachine.Name);
+        }
+
+        var queryable = await _stateMachineRepository.GetQueryableAsync();
+        
+        var totalCount = await _stateMachineRepository.GetCountAsync();
+
+        var stateMachines = await _stateMachineRepository.GetPagedListAsync(
+            input.SkipCount,
+            input.MaxResultCount,
+            input.Sorting,
+            includeDetails: true
+        );
+
+        var list = stateMachines.Select(s => new StateMachineListDto
+        {
+            Id = s.Id,
+            Name = s.Name,
+            Description = s.Description,
+            StateCount = s.States.Count,
+            CreatorId = s.CreatorId,
+            CreationTime = s.CreationTime
+        }).ToList();
+
+        return new PagedResultDto<StateMachineListDto>(totalCount, list);
     }
 }
