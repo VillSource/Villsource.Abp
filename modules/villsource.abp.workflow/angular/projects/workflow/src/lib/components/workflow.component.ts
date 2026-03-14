@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { WorkflowService } from '../services/workflow.service';
+import { WorkflowService, StateMachineListDto } from '../services/workflow.service';
 import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
@@ -11,13 +11,33 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
 @Component({
   selector: 'lib-workflow',
   template: `
-    <lib-dfa-diagram class="h-1/2" [stateInput]="addStateEvent()"></lib-dfa-diagram>
+    @if (diagramVisible) {
+      <div style="margin-bottom: 1rem;">
+        <h3>Currently editing: {{ selectedMachine?.name }}</h3>
+        <p-button
+          label="Close Diagram"
+          severity="secondary"
+          (click)="diagramVisible = false"
+        ></p-button>
+        <p-button
+          label="Add State"
+          (click)="showStateDialog()"
+          style="margin-left: 0.5rem;"
+        ></p-button>
+      </div>
+      <lib-dfa-diagram
+        id="state-machine-diagram"
+        class="h-1/2"
+        [stateInput]="addStateEvent()"
+        [initialStates]="selectedStates()"
+      ></lib-dfa-diagram>
+    }
 
-    <p-button label="Add State Machine" (click)="showDialog()"></p-button>
-    <p-button label="Add State" (click)="showStateDialog()"></p-button>
-    <p-button label="Add mock State" (click)="addNode()"></p-button>
+    <div style="margin-top: 1rem; margin-bottom: 1rem;">
+      <p-button label="Add State Machine" (click)="showDialog()"></p-button>
+    </div>
 
-    <div class="card" style="margin-top: 1rem;">
+    <div class="card">
       <p-table
         [value]="stateMachines"
         [lazy]="true"
@@ -37,6 +57,7 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
             <th>States</th>
             <th>Created By</th>
             <th>Created Date</th>
+            <th>Actions</th>
           </tr>
         </ng-template>
         <ng-template #body let-machine>
@@ -47,6 +68,14 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
             <td>{{ machine.stateCount }}</td>
             <td>{{ machine.creatorId }}</td>
             <td>{{ machine.creationTime | date: 'short' }}</td>
+            <td>
+              <p-button
+                icon="pi pi-external-link"
+                label="Show Diagram"
+                [text]="true"
+                (click)="showDiagram(machine)"
+              ></p-button>
+            </td>
           </tr>
         </ng-template>
       </p-table>
@@ -111,7 +140,15 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
     </p-dialog>
   `,
   standalone: true,
-  imports: [ButtonModule, TableModule, DialogModule, InputTextModule, FormsModule, DfaDiagram, DatePipe],
+  imports: [
+    ButtonModule,
+    TableModule,
+    DialogModule,
+    InputTextModule,
+    FormsModule,
+    DfaDiagram,
+    DatePipe,
+  ],
 })
 export class WorkflowComponent {
   protected readonly service = inject(WorkflowService);
@@ -129,6 +166,10 @@ export class WorkflowComponent {
   stateMachines: any[] = [];
   totalRecords = 0;
 
+  diagramVisible = false;
+  selectedMachine: StateMachineListDto | null = null;
+  selectedStates = signal<any[]>([]);
+
   loading = false;
   loadData(event: TableLazyLoadEvent) {
     this.loading = true;
@@ -136,11 +177,13 @@ export class WorkflowComponent {
     const input = {
       maxResultCount: event.rows ?? 5,
       skipCount: event.first ?? 0,
-      sorting: event.sortField ? `${event.sortField} ${event.sortOrder === 1 ? 'ASC' : 'DESC'}` : '',
+      sorting: event.sortField
+        ? `${event.sortField} ${event.sortOrder === 1 ? 'ASC' : 'DESC'}`
+        : '',
     };
 
     this.service.getList(input).subscribe({
-      next: (data) => {
+      next: data => {
         this.stateMachines = data.items;
         this.totalRecords = data.totalCount;
         this.loading = false;
@@ -151,14 +194,21 @@ export class WorkflowComponent {
     });
   }
 
-  constructor() {}
-
   showDialog() {
     this.displayDialog = true;
   }
 
   showStateDialog() {
     this.displayStateDialog = true;
+  }
+
+  showDiagram(machine: StateMachineListDto) {
+    this.diagramVisible = true;
+    this.selectedMachine = machine;
+    this.selectedStates.set([]);
+    this.service.getStates(machine.id).subscribe(states => {
+      this.selectedStates.set(states);
+    });
   }
 
   onSave() {
@@ -173,30 +223,21 @@ export class WorkflowComponent {
   }
 
   onStateSave() {
-    const state = {
-      name: this.stateName,
-      description: this.stateDescription,
-    };
+    if (this.stateName && this.selectedMachine) {
+      this.service
+        .addState(this.stateName, this.stateDescription, this.selectedMachine.id)
+        .subscribe(() => {
+          this.displayStateDialog = false;
+          const newState = {
+            name: this.stateName,
+            description: this.stateDescription,
+          };
+          this.stateName = '';
+          this.stateDescription = '';
 
-    if (this.stateName) {
-      this.service.addState(state.name, state.description).subscribe(() => {
-        this.displayStateDialog = false;
-        this.stateName = '';
-        this.stateDescription = '';
-
-        this.addStateEvent.set({
-          name: state.name,
-          description: state.description,
+          this.addStateEvent.set(newState);
+          this.selectedMachine!.stateCount++; // Optimistic update
         });
-      });
     }
-  }
-
-  addNode() {
-    console.log('addNode');
-    this.addStateEvent.set({
-      name: `mock state ${Date.now()}`,
-      description: `mock description ${Date.now()}`,
-    });
   }
 }

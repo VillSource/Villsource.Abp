@@ -8,10 +8,10 @@ import {
   provideNgDiagram,
   type Node,
 } from 'ng-diagram';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'lib-dfa-diagram',
+  standalone: true,
   imports: [NgDiagramComponent],
   providers: [provideNgDiagram()],
   templateUrl: './dfa-diagram.html',
@@ -23,35 +23,69 @@ export class DfaDiagram {
   private viewportService = inject(NgDiagramViewportService);
 
   stateInput = input<{ name: string; description: string }>();
+  initialStates = input<{ id: string; name: string; description: string }[]>([]);
 
   constructor() {
     effect(() => {
       const state = this.stateInput();
       untracked(() => {
-        console.log(state);
         if (state) {
           this.addNode(state);
         }
       });
     });
+
+    effect(() => {
+      const states = this.initialStates();
+      untracked(() => {
+        const currentNodes = this.modelService.nodes();
+        const currentEdges = this.modelService.edges();
+
+        if (currentNodes.length > 0) {
+          this.modelService.deleteNodes(currentNodes.map(n => n.id));
+        }
+        if (currentEdges.length > 0) {
+          this.modelService.deleteEdges(currentEdges.map(e => e.id));
+        }
+
+        if (states && states.length > 0) {
+          this.loadInitialStates(states);
+        }
+      });
+    });
   }
-  ngOnInit(): void {}
 
   model = initializeModel({
-    nodes: [{ id: '1', position: { x: 100, y: 150 }, data: { label: 'Draft' } }],
+    nodes: [],
     edges: [],
   });
+
+  loadInitialStates(states: { name: string }[]) {
+    const newNodes: Node[] = states.map((s, index) => ({
+      id: s.name,
+      position: { x: index * 250 + 100, y: 150 },
+      data: { label: s.name },
+    }));
+
+    this.modelService.addNodes(newNodes);
+    setTimeout(() => {
+      this.viewportService.zoomToFit();
+    }, 100);
+  }
 
   async addNode(state: { name: string; description: string }) {
     const nodes = this.modelService.nodes();
     const lastNode = nodes[nodes.length - 1];
+
+    const x = lastNode ? lastNode.position.x + 250 : 100;
+    const y = lastNode ? lastNode.position.y : 150;
+
     const newNode: Node = {
-      id: state.name,
-      position: { x: lastNode.position.x + 100 + lastNode.size.width, y: lastNode.position.y },
+      id: state.name + Date.now(),
+      position: { x, y },
       data: { label: state.name },
     };
 
     this.modelService.addNodes([newNode]);
-    // this.viewportService.zoomToFit();
   }
 }

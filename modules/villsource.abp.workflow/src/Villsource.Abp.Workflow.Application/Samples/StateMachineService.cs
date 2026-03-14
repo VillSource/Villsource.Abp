@@ -34,12 +34,11 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
 
     public async Task CreateState(StateDto state)
     {
-        var machine = await _stateMachineRepository.FirstOrDefaultAsync();
         var entity = new State
         {
             Name = state.Name,
             Description = state.Description,
-            StateMachineId = machine?.Id ?? Guid.Empty
+            StateMachineId = state.StateMachineId
         };
         await _stateRepository.InsertAsync(entity);
     }
@@ -51,8 +50,6 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
             input.Sorting = nameof(StateMachine.Name);
         }
 
-        var queryable = await _stateMachineRepository.GetQueryableAsync();
-        
         var totalCount = await _stateMachineRepository.GetCountAsync();
 
         var stateMachines = await _stateMachineRepository.GetPagedListAsync(
@@ -73,5 +70,16 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
         }).ToList();
 
         return new PagedResultDto<StateMachineListDto>(totalCount, list);
+    }
+
+    public async Task<List<StateListDto>> GetStatesAsync(Guid stateMachineId)
+    {
+        var states = await _stateRepository.GetListAsync(s => s.StateMachineId == stateMachineId);
+        return states.Select(s => new StateListDto
+        {
+            Id = s.Id,
+            Name = s.Name,
+            Description = s.Description
+        }).ToList();
     }
 }

@@ -23,16 +23,27 @@ export class WorkflowService {
     );
   }
 
-  addState(name: string, description: string) {
+  addState(name: string, description: string, stateMachineId: string) {
     return this.restService.request<StateDto, any>(
-      { method: 'POST', url: '/api/app/state-machine/state', body: { name, description } },
+      {
+        method: 'POST',
+        url: '/api/app/state-machine/state',
+        body: { name, description, stateMachineId },
+      },
       { apiName: this.apiName },
     );
   }
 
   getList(input: PagedAndSortedResultRequestDto) {
-    return this.restService.request<PagedAndSortedResultRequestDto, PagedResultDto<StateMachineListDto>>(
-      { method: 'GET', url: '/api/app/state-machine', params: input },
+    return this.restService.request<
+      PagedAndSortedResultRequestDto,
+      PagedResultDto<StateMachineListDto>
+    >({ method: 'GET', url: '/api/app/state-machine', params: input }, { apiName: this.apiName });
+  }
+
+  getStates(stateMachineId: string) {
+    return this.restService.request<void, StateListDto[]>(
+      { method: 'GET', url: `/api/app/state-machine/states/${stateMachineId}` },
       { apiName: this.apiName },
     );
   }
@@ -47,12 +58,19 @@ export interface StateMachineListDto {
   creationTime: string;
 }
 
+export interface StateListDto {
+  id: string;
+  name: string;
+  description: string;
+}
+
 interface AddStateMachineDto {
   name: string;
   description: string;
 }
 
 interface StateDto {
+  stateMachineId: string;
   name: string;
   description: string;
 }
