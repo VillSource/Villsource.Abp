@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, untracked } from '@angular/core';
+import { Component, effect, inject, input, output, untracked } from '@angular/core';
 import {
   NgDiagramComponent,
   NgDiagramModelService,
@@ -43,7 +43,26 @@ export class DfaDiagram {
   stateInput = input<{ name: string; description: string }>();
   initialStates = input<{ id: string; name: string; description: string }[]>([]);
 
+  nodeSelected = output<{ id: string; name: string; description: string } | null>();
+
   constructor() {
+    effect(() => {
+      const node = this.selectedNode();
+      const label = this.nodeLabel(); // Trigger on label change too
+      const description = (node?.data as any)?.description ?? '';
+
+      untracked(() => {
+        if (node) {
+          this.nodeSelected.emit({
+            id: node.id,
+            name: label,
+            description: description,
+          });
+        } else {
+          this.nodeSelected.emit(null);
+        }
+      });
+    });
     effect(() => {
       const state = this.stateInput();
       untracked(() => {

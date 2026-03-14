@@ -10,60 +10,67 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
 
 @Component({
   selector: 'lib-workflow',
-  styles: [`
-    .workflow-wrapper {
-      display: flex;
-      flex-direction: column;
-      height: calc(100vh - 100px); /* Adjust based on common header height if any */
-      width: 100%;
-      overflow: hidden;
-    }
-    .diagram-panel {
-      height: 40%;
-      border-bottom: 2px solid #e2e8f0;
-      background: #f8fafc;
-      display: flex;
-      flex-direction: column;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-    .list-panel {
-      height: 60%;
-      overflow-y: auto;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
-    .list-panel.full-height {
-      height: 100%;
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-    .diagram-container {
-      flex: 1;
-      min-height: 0;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      overflow: hidden;
-      background: white;
-    }
-  `],
+  styles: [
+    `
+      .workflow-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 100px); /* Adjust based on common header height if any */
+        width: 100%;
+        overflow: hidden;
+      }
+      .diagram-panel {
+        height: 40%;
+        border-bottom: 2px solid #e2e8f0;
+        background: #f8fafc;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        box-sizing: border-box;
+      }
+      .list-panel {
+        height: 60%;
+        overflow-y: auto;
+        padding: 1rem;
+        box-sizing: border-box;
+      }
+      .list-panel.full-height {
+        height: 100%;
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+      .diagram-container {
+        flex: 1;
+        min-height: 0;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        overflow: hidden;
+        background: white;
+      }
+    `,
+  ],
   template: `
     <div class="workflow-wrapper">
       @if (diagramVisible) {
         <div class="diagram-panel">
           <div class="section-header">
-            <h3 style="margin: 0;">Currently editing: {{ selectedMachine?.name }}</h3>
+            <h3 style="margin: 0;">
+              Currently editing: {{ selectedMachine?.name }}
+              @if (selectedNodeInfo(); as node) {
+                <span style="color: #64748b; font-weight: 400;"> > {{ node.name }} ({{ node.id }})</span>
+              }
+            </h3>
             <div>
               <p-button
                 label="Close Diagram"
                 severity="secondary"
                 icon="pi pi-times"
                 [text]="true"
-                (click)="diagramVisible = false"
+                (click)="diagramVisible = false; selectedNodeInfo.set(null)"
               ></p-button>
               <p-button
                 label="Add State"
@@ -79,6 +86,7 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
               style="height: 100%; width: 100%; display: block;"
               [stateInput]="addStateEvent()"
               [initialStates]="selectedStates()"
+              (nodeSelected)="selectedNodeInfo.set($event)"
             ></lib-dfa-diagram>
           </div>
         </div>
@@ -224,6 +232,7 @@ export class WorkflowComponent {
   diagramVisible = false;
   selectedMachine: StateMachineListDto | null = null;
   selectedStates = signal<any[]>([]);
+  selectedNodeInfo = signal<{ id: string; name: string; description: string } | null>(null);
 
   loading = false;
   loadData(event: TableLazyLoadEvent) {
@@ -261,6 +270,7 @@ export class WorkflowComponent {
     this.diagramVisible = true;
     this.selectedMachine = machine;
     this.selectedStates.set([]);
+    this.selectedNodeInfo.set(null);
     this.service.getStates(machine.id).subscribe(states => {
       this.selectedStates.set(states);
     });
