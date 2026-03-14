@@ -5,5 +5,15 @@
       [config]="config"
       (nodeDragEnded)="onNodeDragEnded($event)"
     ></ng-diagram>
+    <div class="diagram-controls">
+      <button 
+        type="button" 
+        pButton 
+        icon="pi pi-expand" 
+        class="p-button-rounded p-button-secondary p-button-text" 
+        (click)="manualZoomToFit()" 
+        title="Zoom to Fit">
+      </button>
+    </div>
   </div>
 </div>

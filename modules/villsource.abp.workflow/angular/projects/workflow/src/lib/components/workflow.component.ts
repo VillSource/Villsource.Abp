@@ -310,8 +310,8 @@ export class WorkflowComponent {
   onStateSave() {
     if (this.stateName && this.selectedMachine) {
       // Calculate a default position for the new node (e.g., at the end)
-      const x = this.selectedStates().length * 250 + 100;
-      const y = 100;
+      const x = (this.selectedStates().length ?? 0) * 250;
+      const y = 0;
 
       this.service
         .addState(this.stateName, this.stateDescription, this.selectedMachine.id, x, y)
@@ -327,7 +327,8 @@ export class WorkflowComponent {
           this.stateName = '';
           this.stateDescription = '';
 
-          this.selectedStates.update(states => [...states, newState]);
+          var states = this.selectedStates();
+          this.selectedStates.set([...states, newState]);
           this.selectedMachine!.stateCount++; // Optimistic update
         });
     }

@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, output, untracked } from '@angular/core';
+import { Component, effect, inject, input, output, untracked, computed, Type } from '@angular/core';
 import {
   NgDiagramComponent,
   NgDiagramModelService,
@@ -6,20 +6,19 @@ import {
   NgDiagramViewportService,
   NgDiagramSelectionService,
   initializeModel,
-  provideNgDiagram,
   type Node,
   type Edge,
 } from 'ng-diagram';
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { computed, Type } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 import { type NodeDragEndedEvent } from 'ng-diagram';
 
 @Component({
   selector: 'lib-dfa-diagram',
   standalone: true,
-  imports: [NgDiagramComponent, CommonModule, FormsModule, InputTextModule],
+  imports: [NgDiagramComponent, CommonModule, FormsModule, InputTextModule, ButtonModule],
   templateUrl: './dfa-diagram.html',
   styleUrl: './dfa-diagram.css',
 })
@@ -40,7 +39,9 @@ export class DfaDiagram {
     return edge?.labels?.[0]?.data?.['label'] ?? edge?.data?.label ?? '';
   });
 
-  initialStates = input<{ id: string; name: string; description: string; positionX: number; positionY: number }[]>([]);
+  initialStates = input<
+    { id: string; name: string; description: string; positionX: number; positionY: number }[]
+  >([]);
 
   nodeSelected = output<{ id: string; name: string; description: string } | null>();
   edgeSelected = output<{ id: string; label: string } | null>();
@@ -100,34 +101,55 @@ export class DfaDiagram {
     nodeDraggingEnabled: true,
   }));
 
-  loadInitialStates(states: any[]) {
+  async loadInitialStates(states: any[]) {
     const currentNodes = this.modelService.nodes();
-    const isFirstLoad = currentNodes.length === 0;
+    const currentNodeIds = new Set(currentNodes.map(n => n.id));
+    const newStateIds = new Set(states.map(s => s.id));
 
-    // Clear everything if we're reloading (simple strategy for now)
-    if (!isFirstLoad) {
-      this.modelService.deleteNodes(currentNodes.map(n => n.id));
-      const currentEdges = this.modelService.edges();
-      if (currentEdges.length > 0) {
-        this.modelService.deleteEdges(currentEdges.map(e => e.id));
-      }
+    const nodesToAdd = states.filter(s => !currentNodeIds.has(s.id));
+    const nodesToRemove = currentNodes.filter(n => !newStateIds.has(n.id));
+
+    if (nodesToAdd.length === 0 && nodesToRemove.length === 0) {
+      return;
     }
 
-    const newNodes: Node[] = states.map(s => ({
-      id: s.id,
-      position: { x: s.positionX ?? 0, y: s.positionY ?? 0 },
-      data: { label: s.name, description: s.description },
-    }));
+    await this.diagramService.transaction(
+      async () => {
+        // Remove nodes that are no longer in the state list
+        if (nodesToRemove.length > 0) {
+          this.modelService.deleteNodes(nodesToRemove.map(n => n.id));
+          
+          // Also clear edges if we are doing a full refresh (e.g. machine switch)
+          if (states.length === 0) {
+             const edges = this.modelService.edges();
+             if (edges.length > 0) {
+               this.modelService.deleteEdges(edges.map(e => e.id));
+             }
+          }
+        }
 
-    this.modelService.addNodes(newNodes);
+        // Add only new nodes
+        if (nodesToAdd.length > 0) {
+          const newNodes: Node[] = nodesToAdd.map(s => ({
+            id: s.id,
+            position: { x: s.positionX ?? 0, y: s.positionY ?? 0 },
+            data: { label: s.name, description: s.description },
+          }));
+          this.modelService.addNodes(newNodes);
+        }
+      },
+      { waitForMeasurements: true },
+    );
 
-    if (isFirstLoad && newNodes.length > 0) {
-      setTimeout(() => {
-        this.viewportService.zoomToFit();
-      }, 50);
+    // Zoom to fit when loading for the first time or when a new node is added
+    if (states.length > 0 && (currentNodes.length === 0 || nodesToAdd.length > 0)) {
+      this.viewportService.zoomToFit({ padding: 50 });
     }
   }
 
+  manualZoomToFit() {
+    this.viewportService.zoomToFit({ padding: 50 });
+  }
 
   onNodeDragEnded(event: NodeDragEndedEvent) {
     event.nodes.forEach(node => {
