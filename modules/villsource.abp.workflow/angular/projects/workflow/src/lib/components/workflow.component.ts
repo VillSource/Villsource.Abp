@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { WorkflowService } from '../services/workflow.service';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
@@ -19,10 +19,14 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
     <div class="card" style="margin-top: 1rem;">
       <p-table
         [value]="stateMachines"
+        [lazy]="true"
         [tableStyle]="{ 'min-width': '50rem' }"
         [paginator]="true"
         [rows]="5"
         [rowsPerPageOptions]="[5, 10, 20]"
+        [totalRecords]="1000"
+        (onLazyLoad)="loadData($event)"
+        [loading]="loading"
       >
         <ng-template #header>
           <tr>
@@ -121,6 +125,22 @@ export class WorkflowComponent {
     { name: 'Expense Claim', description: 'Expense reimbursement process' },
     { name: 'IT Support', description: 'Ticket resolution workflow' },
   ];
+
+  loading = false;
+  loadData(event: TableLazyLoadEvent) {
+    this.loading = true;
+
+    const page = (event.first ?? 0) / (event.rows ?? 10);
+
+    this.stateMachines = [];
+    for (let i = 0; i <= (event.rows ?? 10); i++) {
+      this.stateMachines.push({
+        name: `Machine ${page * (event.rows ?? 10) + i}`,
+        description: `Description ${page * (event.rows ?? 10) + i}`,
+      });
+    }
+    this.loading = false;
+  }
 
   constructor() {}
 
