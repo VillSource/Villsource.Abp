@@ -63,6 +63,9 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
               @if (selectedNodeInfo(); as node) {
                 <span style="color: #64748b; font-weight: 400;"> > {{ node.name }} ({{ node.id }})</span>
               }
+              @if (selectedEdgeInfo(); as edge) {
+                <span style="color: #64748b; font-weight: 400;"> > Transition: {{ edge.label || 'unlabeled' }}</span>
+              }
             </h3>
             <div>
               <p-button
@@ -70,7 +73,7 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
                 severity="secondary"
                 icon="pi pi-times"
                 [text]="true"
-                (click)="diagramVisible = false; selectedNodeInfo.set(null)"
+                (click)="diagramVisible = false; selectedNodeInfo.set(null); selectedEdgeInfo.set(null)"
               ></p-button>
               <p-button
                 label="Add State"
@@ -87,6 +90,7 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
               [stateInput]="addStateEvent()"
               [initialStates]="selectedStates()"
               (nodeSelected)="selectedNodeInfo.set($event)"
+              (edgeSelected)="selectedEdgeInfo.set($event)"
             ></lib-dfa-diagram>
           </div>
         </div>
@@ -233,6 +237,7 @@ export class WorkflowComponent {
   selectedMachine: StateMachineListDto | null = null;
   selectedStates = signal<any[]>([]);
   selectedNodeInfo = signal<{ id: string; name: string; description: string } | null>(null);
+  selectedEdgeInfo = signal<{ id: string; label: string } | null>(null);
 
   loading = false;
   loadData(event: TableLazyLoadEvent) {
@@ -271,6 +276,7 @@ export class WorkflowComponent {
     this.selectedMachine = machine;
     this.selectedStates.set([]);
     this.selectedNodeInfo.set(null);
+    this.selectedEdgeInfo.set(null);
     this.service.getStates(machine.id).subscribe(states => {
       this.selectedStates.set(states);
     });

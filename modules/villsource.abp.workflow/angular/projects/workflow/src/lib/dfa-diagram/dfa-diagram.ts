@@ -44,6 +44,7 @@ export class DfaDiagram {
   initialStates = input<{ id: string; name: string; description: string }[]>([]);
 
   nodeSelected = output<{ id: string; name: string; description: string } | null>();
+  edgeSelected = output<{ id: string; label: string } | null>();
 
   constructor() {
     effect(() => {
@@ -60,6 +61,22 @@ export class DfaDiagram {
           });
         } else {
           this.nodeSelected.emit(null);
+        }
+      });
+    });
+
+    effect(() => {
+      const edge = this.selectedEdge();
+      const label = this.edgeLabel(); // Trigger on label change too
+
+      untracked(() => {
+        if (edge) {
+          this.edgeSelected.emit({
+            id: edge.id,
+            label: label,
+          });
+        } else {
+          this.edgeSelected.emit(null);
         }
       });
     });
