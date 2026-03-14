@@ -43,6 +43,11 @@ public class StatePositionUpdateDto
     public double PositionY { get; set; }
 }
 
+public class StatePositionUpdateResponseDto
+{
+    public string? ConcurrencyStamp { get; set; }
+}
+
 public class UpdateStateDto : IHasConcurrencyStamp
 {
     [Required]
@@ -66,7 +71,7 @@ public interface IStateMachineService : IApplicationService
 {
     Task CreateWorkflow(StateMachineDto machine);
     Task<StateListDto> CreateState(StateDto state);
-    Task UpdateStatePosition(Guid id, StatePositionUpdateDto input);
+    Task<StatePositionUpdateResponseDto> UpdateStatePosition(Guid id, StatePositionUpdateDto input);
     Task<PagedResultDto<StateMachineListDto>> GetListAsync(PagedAndSortedResultRequestDto input);
     Task<List<StateListDto>> GetStatesAsync(Guid stateMachineId);
     Task UpdateState(Guid id, UpdateStateDto input);

@@ -40,7 +40,14 @@ export class DfaDiagram {
   });
 
   initialStates = input<
-    { id: string; name: string; description: string; positionX: number; positionY: number; concurrencyStamp?: string }[]
+    {
+      id: string;
+      name: string;
+      description: string;
+      positionX: number;
+      positionY: number;
+      concurrencyStamp?: string;
+    }[]
   >([]);
 
   nodeSelected = output<{ id: string; name: string; description: string } | null>();
@@ -109,22 +116,18 @@ export class DfaDiagram {
     const nodesToAdd = states.filter(s => !currentNodeIds.has(s.id));
     const nodesToRemove = currentNodes.filter(n => !newStateIds.has(n.id));
 
-    if (nodesToAdd.length === 0 && nodesToRemove.length === 0) {
-      return;
-    }
-
     await this.diagramService.transaction(
       async () => {
         // Remove nodes that are no longer in the state list
         if (nodesToRemove.length > 0) {
           this.modelService.deleteNodes(nodesToRemove.map(n => n.id));
-          
+
           // Also clear edges if we are doing a full refresh (e.g. machine switch)
           if (states.length === 0) {
-             const edges = this.modelService.edges();
-             if (edges.length > 0) {
-               this.modelService.deleteEdges(edges.map(e => e.id));
-             }
+            const edges = this.modelService.edges();
+            if (edges.length > 0) {
+              this.modelService.deleteEdges(edges.map(e => e.id));
+            }
           }
         }
 
@@ -133,10 +136,24 @@ export class DfaDiagram {
           const newNodes: Node[] = nodesToAdd.map(s => ({
             id: s.id,
             position: { x: s.positionX ?? 0, y: s.positionY ?? 0 },
-            data: { label: s.name, description: s.description, concurrencyStamp: s.concurrencyStamp },
+            data: {
+              label: s.name,
+              description: s.description,
+              concurrencyStamp: s.concurrencyStamp,
+            },
           }));
           this.modelService.addNodes(newNodes);
         }
+
+        // Update existing nodes (to sync ConcurrencyStamp and other data)
+        const nodesToUpdate = states.filter(s => currentNodeIds.has(s.id));
+        nodesToUpdate.forEach(s => {
+          this.modelService.updateNodeData(s.id, {
+            label: s.name,
+            description: s.description,
+            concurrencyStamp: s.concurrencyStamp,
+          });
+        });
       },
       { waitForMeasurements: true },
     );

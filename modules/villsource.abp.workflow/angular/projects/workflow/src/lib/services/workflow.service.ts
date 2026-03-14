@@ -41,7 +41,7 @@ export class WorkflowService {
   }
 
   updateStatePosition(id: string, positionX: number, positionY: number) {
-    return this.restService.request<any, any>(
+    return this.restService.request<any, { concurrencyStamp: string }>(
       {
         method: 'PUT',
         url: `/api/app/state-machine/${id}/state-position`,

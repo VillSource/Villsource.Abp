@@ -62,7 +62,7 @@ import { provideNgDiagram } from 'ng-diagram';
           <div class="section-header">
             <h3 style="margin: 0;">
               Currently editing: {{ selectedMachine?.name }}
-              @if (selectedNodeInfo(); as node) {
+              <!-- @if (selectedNodeInfo(); as node) {
                 <span style="color: #64748b; font-weight: 400;">
                   > {{ node.name }} ({{ node.id }})</span
                 >
@@ -71,7 +71,7 @@ import { provideNgDiagram } from 'ng-diagram';
                 <span style="color: #64748b; font-weight: 400;">
                   > Transition: {{ edge.label || 'unlabeled' }}</span
                 >
-              }
+              } -->
             </h3>
             <div>
               <p-button
@@ -105,7 +105,10 @@ import { provideNgDiagram } from 'ng-diagram';
       }
 
       <div class="list-panel" [class.full-height]="!diagramVisible">
-        <lib-workflow-properties (saved)="refreshStates()"></lib-workflow-properties>
+        <lib-workflow-properties 
+          [syncing]="positionSyncing()" 
+          (saved)="refreshStates()"
+        ></lib-workflow-properties>
 
         <div class="section-header">
           <h2 style="margin: 0;">State Machines</h2>
@@ -248,6 +251,7 @@ export class WorkflowComponent {
   selectedStates = signal<any[]>([]);
   selectedNodeInfo = signal<{ id: string; name: string; description: string } | null>(null);
   selectedEdgeInfo = signal<{ id: string; label: string } | null>(null);
+  positionSyncing = signal(false);
 
   loading = false;
   loadData(event: TableLazyLoadEvent) {
@@ -301,7 +305,18 @@ export class WorkflowComponent {
   }
 
   updateNodePosition(event: { id: string; x: number; y: number }) {
-    this.service.updateStatePosition(event.id, event.x, event.y).subscribe();
+    this.positionSyncing.set(true);
+    this.service.updateStatePosition(event.id, event.x, event.y).subscribe({
+      next: res => {
+        const currentStates = this.selectedStates();
+        const updatedStates = currentStates.map(s => (s.id === event.id ? { ...s, concurrencyStamp: res.concurrencyStamp } : s));
+        this.selectedStates.set(updatedStates);
+        this.positionSyncing.set(false);
+      },
+      error: () => {
+        this.positionSyncing.set(false);
+      }
+    });
   }
 
   onSave() {

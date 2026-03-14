@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, output, effect, untracked } from '@angular/core';
+import { Component, computed, inject, signal, output, effect, untracked, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -78,11 +78,15 @@ import { WorkflowService } from '../services/workflow.service';
             </p-floatLabel>
 
             <div class="save-actions">
+              <span *ngIf="syncing()" class="sync-indicator">
+                <i class="pi pi-spin pi-spinner"></i> Syncing position...
+              </span>
               <p-button 
                 label="Save Changes" 
                 icon="pi pi-save" 
                 severity="success"
                 [loading]="saving()"
+                [disabled]="syncing()"
                 (click)="saveNode()"
               ></p-button>
             </div>
@@ -174,7 +178,16 @@ import { WorkflowService } from '../services/workflow.service';
       .save-actions {
         display: flex;
         justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
         margin-top: 1rem;
+      }
+      .sync-indicator {
+        font-size: 0.85rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
       @keyframes fa-spin {
         0% {
@@ -193,6 +206,7 @@ export class PropertiesComponent {
   private workflowService = inject(WorkflowService);
   private messageService = inject(MessageService);
 
+  syncing = input<boolean>(false);
   saved = output<void>();
 
   selection = this.selectionService.selection;

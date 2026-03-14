@@ -56,12 +56,13 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
         };
     }
 
-    public async Task UpdateStatePosition(Guid id, StatePositionUpdateDto input)
+    public async Task<StatePositionUpdateResponseDto> UpdateStatePosition(Guid id, StatePositionUpdateDto input)
     {
         var entity = await _stateRepository.GetAsync(id);
         entity.SetProperty("PositionX", input.PositionX);
         entity.SetProperty("PositionY", input.PositionY);
-        await _stateRepository.UpdateAsync(entity);
+        await _stateRepository.UpdateAsync(entity, autoSave: true);
+        return new StatePositionUpdateResponseDto { ConcurrencyStamp = entity.ConcurrencyStamp };
     }
 
     public async Task<PagedResultDto<StateMachineListDto>> GetListAsync(PagedAndSortedResultRequestDto input)
@@ -113,6 +114,6 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
         entity.Name = input.Name;
         entity.Description = input.Description;
         entity.ConcurrencyStamp = input.ConcurrencyStamp;
-        await _stateRepository.UpdateAsync(entity);
+        await _stateRepository.UpdateAsync(entity, autoSave: true);
     }
 }
