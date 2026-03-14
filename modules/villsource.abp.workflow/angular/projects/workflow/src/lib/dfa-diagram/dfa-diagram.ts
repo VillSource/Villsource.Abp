@@ -4,15 +4,21 @@ import {
   NgDiagramModelService,
   NgDiagramService,
   NgDiagramViewportService,
+  NgDiagramSelectionService,
   initializeModel,
   provideNgDiagram,
   type Node,
+  type Edge,
 } from 'ng-diagram';
+import { InputTextModule } from 'primeng/inputtext';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { computed } from '@angular/core';
 
 @Component({
   selector: 'lib-dfa-diagram',
   standalone: true,
-  imports: [NgDiagramComponent],
+  imports: [NgDiagramComponent, CommonModule, FormsModule, InputTextModule],
   providers: [provideNgDiagram()],
   templateUrl: './dfa-diagram.html',
   styleUrl: './dfa-diagram.css',
@@ -21,6 +27,18 @@ export class DfaDiagram {
   private diagramService = inject(NgDiagramService);
   private modelService = inject(NgDiagramModelService);
   private viewportService = inject(NgDiagramViewportService);
+  private selectionService = inject(NgDiagramSelectionService);
+
+  selection = this.selectionService.selection;
+
+  selectedNode = computed(() => this.selection().nodes[0] ?? null);
+  selectedEdge = computed(() => this.selection().edges[0] ?? null);
+
+  nodeLabel = computed(() => (this.selectedNode()?.data as any)?.label ?? '');
+  edgeLabel = computed(() => {
+    const edge = this.selectedEdge() as any;
+    return edge?.labels?.[0]?.data?.['label'] ?? edge?.data?.label ?? '';
+  });
 
   stateInput = input<{ name: string; description: string }>();
   initialStates = input<{ id: string; name: string; description: string }[]>([]);
@@ -91,5 +109,31 @@ export class DfaDiagram {
     setTimeout(() => {
       this.viewportService.zoomToFit();
     }, 50);
+  }
+
+  updateNodeLabel(value: string) {
+    const node = this.selectedNode();
+    if (node) {
+      this.modelService.updateNodeData(node.id, { label: value });
+    }
+  }
+
+  updateNodeDescription(value: string) {
+    const node = this.selectedNode();
+    if (node) {
+      this.modelService.updateNodeData(node.id, { description: value });
+    }
+  }
+
+  updateEdgeLabel(value: string) {
+    const edge = this.selectedEdge();
+    if (edge) {
+      this.modelService.updateEdges([
+        {
+          id: edge.id,
+          labels: [{ id: 'label-1', data: { label: value }, positionOnEdge: 0.5 }],
+        } as any,
+      ]);
+    }
   }
 }

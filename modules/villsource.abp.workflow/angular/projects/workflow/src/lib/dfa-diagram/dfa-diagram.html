@@ -1,1 +1,39 @@
-<ng-diagram [model]="model"></ng-diagram>
+<div class="diagram-host">
+  <div class="diagram-content">
+    <ng-diagram [model]="model"></ng-diagram>
+  </div>
+
+  <div class="properties-sidebar" *ngIf="selectedNode() || selectedEdge()">
+    <div class="sidebar-header">
+      <h4>Properties</h4>
+    </div>
+
+    <div *ngIf="selectedNode() as node" class="property-group">
+      <h5>Node (State)</h5>
+      <div class="property-item">
+        <label>Name</label>
+        <input [ngModel]="nodeLabel()" (ngModelChange)="updateNodeLabel($event)" pInputText />
+      </div>
+      <div class="property-item">
+        <label>Description</label>
+        <textarea
+          [ngModel]="$any(node.data).description"
+          (ngModelChange)="updateNodeDescription($event)"
+          class="p-inputtext"
+        ></textarea>
+      </div>
+    </div>
+
+    <div *ngIf="selectedEdge() as edge" class="property-group">
+      <h5>Edge (Transition)</h5>
+      <div class="property-item">
+        <label>Label</label>
+        <input [ngModel]="edgeLabel()" (ngModelChange)="updateEdgeLabel($event)" pInputText />
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="properties-sidebar placeholder" *ngIf="!selectedNode() && !selectedEdge()">
+    <p>Select a node or edge to edit properties</p>
+  </div> -->
+</div>
