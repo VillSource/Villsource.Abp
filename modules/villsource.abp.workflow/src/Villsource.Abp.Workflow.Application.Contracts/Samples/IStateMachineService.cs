@@ -32,6 +32,14 @@ public class StateDto
     public required string Name { get; set; }
     [Required]
     public required string Description { get; set; }
+    public double PositionX { get; set; }
+    public double PositionY { get; set; }
+}
+
+public class StatePositionUpdateDto
+{
+    public double PositionX { get; set; }
+    public double PositionY { get; set; }
 }
 
 public class StateListDto
@@ -39,12 +47,15 @@ public class StateListDto
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public double PositionX { get; set; }
+    public double PositionY { get; set; }
 }
 
 public interface IStateMachineService : IApplicationService
 {
     Task CreateWorkflow(StateMachineDto machine);
-    Task CreateState(StateDto state);
+    Task<StateListDto> CreateState(StateDto state);
+    Task UpdateStatePosition(Guid id, StatePositionUpdateDto input);
     Task<PagedResultDto<StateMachineListDto>> GetListAsync(PagedAndSortedResultRequestDto input);
     Task<List<StateListDto>> GetStatesAsync(Guid stateMachineId);
 }

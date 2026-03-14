@@ -23,12 +23,29 @@ export class WorkflowService {
     );
   }
 
-  addState(name: string, description: string, stateMachineId: string) {
-    return this.restService.request<StateDto, any>(
+  addState(
+    name: string,
+    description: string,
+    stateMachineId: string,
+    positionX: number,
+    positionY: number,
+  ) {
+    return this.restService.request<StateDto, StateListDto>(
       {
         method: 'POST',
         url: '/api/app/state-machine/state',
-        body: { name, description, stateMachineId },
+        body: { name, description, stateMachineId, positionX, positionY },
+      },
+      { apiName: this.apiName },
+    );
+  }
+
+  updateStatePosition(id: string, positionX: number, positionY: number) {
+    return this.restService.request<any, any>(
+      {
+        method: 'PUT',
+        url: `/api/app/state-machine/${id}/state-position`,
+        body: { positionX, positionY },
       },
       { apiName: this.apiName },
     );
@@ -62,6 +79,8 @@ export interface StateListDto {
   id: string;
   name: string;
   description: string;
+  positionX: number;
+  positionY: number;
 }
 
 interface AddStateMachineDto {
@@ -73,4 +92,6 @@ interface StateDto {
   stateMachineId: string;
   name: string;
   description: string;
+  positionX: number;
+  positionY: number;
 }

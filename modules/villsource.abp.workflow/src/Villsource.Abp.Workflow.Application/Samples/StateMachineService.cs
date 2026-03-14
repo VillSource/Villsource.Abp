@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Villsource.Abp.Workflow.Workflows;
+using Volo.Abp.Data;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 
@@ -32,7 +33,7 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
         await _stateMachineRepository.InsertAsync(stateMachine);
     }
 
-    public async Task CreateState(StateDto state)
+    public async Task<StateListDto> CreateState(StateDto state)
     {
         var entity = new State
         {
@@ -40,7 +41,26 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
             Description = state.Description,
             StateMachineId = state.StateMachineId
         };
-        await _stateRepository.InsertAsync(entity);
+        entity.SetProperty("PositionX", state.PositionX);
+        entity.SetProperty("PositionY", state.PositionY);
+        var inserted = await _stateRepository.InsertAsync(entity);
+        
+        return new StateListDto
+        {
+            Id = inserted.Id,
+            Name = inserted.Name,
+            Description = inserted.Description,
+            PositionX = state.PositionX,
+            PositionY = state.PositionY
+        };
+    }
+
+    public async Task UpdateStatePosition(Guid id, StatePositionUpdateDto input)
+    {
+        var entity = await _stateRepository.GetAsync(id);
+        entity.SetProperty("PositionX", input.PositionX);
+        entity.SetProperty("PositionY", input.PositionY);
+        await _stateRepository.UpdateAsync(entity);
     }
 
     public async Task<PagedResultDto<StateMachineListDto>> GetListAsync(PagedAndSortedResultRequestDto input)
@@ -79,7 +99,9 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
         {
             Id = s.Id,
             Name = s.Name,
-            Description = s.Description
+            Description = s.Description,
+            PositionX = s.GetProperty<double>("PositionX"),
+            PositionY = s.GetProperty<double>("PositionY")
         }).ToList();
     }
 }

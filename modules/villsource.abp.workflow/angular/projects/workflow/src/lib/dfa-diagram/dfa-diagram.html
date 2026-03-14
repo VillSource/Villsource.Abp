@@ -1,5 +1,9 @@
 <div class="diagram-host">
   <div class="diagram-content">
-    <ng-diagram [model]="model"></ng-diagram>
+    <ng-diagram
+      [model]="model"
+      [config]="config"
+      (nodeDragEnded)="onNodeDragEnded($event)"
+    ></ng-diagram>
   </div>
 </div>

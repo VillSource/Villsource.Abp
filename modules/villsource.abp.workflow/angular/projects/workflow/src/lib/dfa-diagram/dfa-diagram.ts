@@ -13,7 +13,8 @@ import {
 import { InputTextModule } from 'primeng/inputtext';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { computed } from '@angular/core';
+import { computed, Type } from '@angular/core';
+import { type NodeDragEndedEvent } from 'ng-diagram';
 
 @Component({
   selector: 'lib-dfa-diagram',
@@ -39,11 +40,11 @@ export class DfaDiagram {
     return edge?.labels?.[0]?.data?.['label'] ?? edge?.data?.label ?? '';
   });
 
-  stateInput = input<{ name: string; description: string }>();
-  initialStates = input<{ id: string; name: string; description: string }[]>([]);
+  initialStates = input<{ id: string; name: string; description: string; positionX: number; positionY: number }[]>([]);
 
   nodeSelected = output<{ id: string; name: string; description: string } | null>();
   edgeSelected = output<{ id: string; label: string } | null>();
+  nodePositionChanged = output<{ id: string; x: number; y: number }>();
 
   constructor() {
     effect(() => {
@@ -79,29 +80,11 @@ export class DfaDiagram {
         }
       });
     });
-    effect(() => {
-      const state = this.stateInput();
-      untracked(() => {
-        if (state) {
-          this.addNode(state);
-        }
-      });
-    });
 
     effect(() => {
       const states = this.initialStates();
       untracked(() => {
-        const currentNodes = this.modelService.nodes();
-        const currentEdges = this.modelService.edges();
-
-        if (currentNodes.length > 0) {
-          this.modelService.deleteNodes(currentNodes.map(n => n.id));
-        }
-        if (currentEdges.length > 0) {
-          this.modelService.deleteEdges(currentEdges.map(e => e.id));
-        }
-
-        if (states && states.length > 0) {
+        if (states) {
           this.loadInitialStates(states);
         }
       });
@@ -113,37 +96,47 @@ export class DfaDiagram {
     edges: [],
   });
 
-  loadInitialStates(states: { name: string }[]) {
-    const newNodes: Node[] = states.map((s, index) => ({
-      id: s.name,
-      position: { x: index * 250, y: 0 },
-      data: { label: s.name },
+  config = computed(() => ({
+    nodeDraggingEnabled: true,
+  }));
+
+  loadInitialStates(states: any[]) {
+    const currentNodes = this.modelService.nodes();
+    const isFirstLoad = currentNodes.length === 0;
+
+    // Clear everything if we're reloading (simple strategy for now)
+    if (!isFirstLoad) {
+      this.modelService.deleteNodes(currentNodes.map(n => n.id));
+      const currentEdges = this.modelService.edges();
+      if (currentEdges.length > 0) {
+        this.modelService.deleteEdges(currentEdges.map(e => e.id));
+      }
+    }
+
+    const newNodes: Node[] = states.map(s => ({
+      id: s.id,
+      position: { x: s.positionX ?? 0, y: s.positionY ?? 0 },
+      data: { label: s.name, description: s.description },
     }));
 
     this.modelService.addNodes(newNodes);
-    setTimeout(() => {
-      this.viewportService.zoomToFit();
-    }, 50);
+
+    if (isFirstLoad && newNodes.length > 0) {
+      setTimeout(() => {
+        this.viewportService.zoomToFit();
+      }, 50);
+    }
   }
 
-  async addNode(state: { name: string; description: string }) {
-    const nodes = this.modelService.nodes();
-    const lastNode = nodes[nodes.length - 1];
 
-    const x = lastNode ? lastNode.position.x + 250 : 100;
-    const y = lastNode ? lastNode.position.y : 0;
-
-    const newNode: Node = {
-      id: state.name + Date.now(),
-      position: { x, y },
-      data: { label: state.name },
-    };
-
-    this.modelService.addNodes([newNode]);
-
-    setTimeout(() => {
-      this.viewportService.zoomToFit();
-    }, 50);
+  onNodeDragEnded(event: NodeDragEndedEvent) {
+    event.nodes.forEach(node => {
+      this.nodePositionChanged.emit({
+        id: node.id,
+        x: node.position.x,
+        y: node.position.y,
+      });
+    });
   }
 
   updateNodeLabel(value: string) {

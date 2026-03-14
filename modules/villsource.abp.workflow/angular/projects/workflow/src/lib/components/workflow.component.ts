@@ -95,10 +95,10 @@ import { provideNgDiagram } from 'ng-diagram';
             <lib-dfa-diagram
               id="state-machine-diagram"
               style="height: 100%; width: 100%; display: block;"
-              [stateInput]="addStateEvent()"
               [initialStates]="selectedStates()"
               (nodeSelected)="selectedNodeInfo.set($event)"
               (edgeSelected)="selectedEdgeInfo.set($event)"
+              (nodePositionChanged)="updateNodePosition($event)"
             ></lib-dfa-diagram>
           </div>
         </div>
@@ -232,8 +232,6 @@ import { provideNgDiagram } from 'ng-diagram';
 export class WorkflowComponent {
   protected readonly service = inject(WorkflowService);
 
-  addStateEvent = signal<{ name: string; description: string } | null>(null);
-
   displayDialog = false;
   machineName = '';
   machineDescription = '';
@@ -294,6 +292,10 @@ export class WorkflowComponent {
     });
   }
 
+  updateNodePosition(event: { id: string; x: number; y: number }) {
+    this.service.updateStatePosition(event.id, event.x, event.y).subscribe();
+  }
+
   onSave() {
     if (this.machineName) {
       this.service.addStateMachine(this.machineName, this.machineDescription).subscribe(() => {
@@ -307,18 +309,25 @@ export class WorkflowComponent {
 
   onStateSave() {
     if (this.stateName && this.selectedMachine) {
+      // Calculate a default position for the new node (e.g., at the end)
+      const x = this.selectedStates().length * 250 + 100;
+      const y = 100;
+
       this.service
-        .addState(this.stateName, this.stateDescription, this.selectedMachine.id)
-        .subscribe(() => {
+        .addState(this.stateName, this.stateDescription, this.selectedMachine.id, x, y)
+        .subscribe(res => {
           this.displayStateDialog = false;
           const newState = {
+            id: res.id,
             name: this.stateName,
             description: this.stateDescription,
+            positionX: x,
+            positionY: y,
           };
           this.stateName = '';
           this.stateDescription = '';
 
-          this.addStateEvent.set(newState);
+          this.selectedStates.update(states => [...states, newState]);
           this.selectedMachine!.stateCount++; // Optimistic update
         });
     }
