@@ -19,7 +19,6 @@ import { computed } from '@angular/core';
   selector: 'lib-dfa-diagram',
   standalone: true,
   imports: [NgDiagramComponent, CommonModule, FormsModule, InputTextModule],
-  providers: [provideNgDiagram()],
   templateUrl: './dfa-diagram.html',
   styleUrl: './dfa-diagram.css',
 })

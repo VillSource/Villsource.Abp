@@ -7,6 +7,8 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
+import { PropertiesComponent } from './properties.component';
+import { provideNgDiagram } from 'ng-diagram';
 
 @Component({
   selector: 'lib-workflow',
@@ -61,10 +63,14 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
             <h3 style="margin: 0;">
               Currently editing: {{ selectedMachine?.name }}
               @if (selectedNodeInfo(); as node) {
-                <span style="color: #64748b; font-weight: 400;"> > {{ node.name }} ({{ node.id }})</span>
+                <span style="color: #64748b; font-weight: 400;">
+                  > {{ node.name }} ({{ node.id }})</span
+                >
               }
               @if (selectedEdgeInfo(); as edge) {
-                <span style="color: #64748b; font-weight: 400;"> > Transition: {{ edge.label || 'unlabeled' }}</span>
+                <span style="color: #64748b; font-weight: 400;">
+                  > Transition: {{ edge.label || 'unlabeled' }}</span
+                >
               }
             </h3>
             <div>
@@ -73,7 +79,9 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
                 severity="secondary"
                 icon="pi pi-times"
                 [text]="true"
-                (click)="diagramVisible = false; selectedNodeInfo.set(null); selectedEdgeInfo.set(null)"
+                (click)="
+                  diagramVisible = false; selectedNodeInfo.set(null); selectedEdgeInfo.set(null)
+                "
               ></p-button>
               <p-button
                 label="Add State"
@@ -97,6 +105,8 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
       }
 
       <div class="list-panel" [class.full-height]="!diagramVisible">
+        <lib-workflow-properties></lib-workflow-properties>
+
         <div class="section-header">
           <h2 style="margin: 0;">State Machines</h2>
           <p-button label="New State Machine" icon="pi pi-plus" (click)="showDialog()"></p-button>
@@ -214,8 +224,10 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
     InputTextModule,
     FormsModule,
     DfaDiagram,
+    PropertiesComponent,
     DatePipe,
   ],
+  providers: [provideNgDiagram()],
 })
 export class WorkflowComponent {
   protected readonly service = inject(WorkflowService);
