@@ -63,14 +63,14 @@ export class DfaDiagram {
   loadInitialStates(states: { name: string }[]) {
     const newNodes: Node[] = states.map((s, index) => ({
       id: s.name,
-      position: { x: index * 250 + 100, y: 150 },
+      position: { x: index * 250, y: 0 },
       data: { label: s.name },
     }));
 
     this.modelService.addNodes(newNodes);
     setTimeout(() => {
       this.viewportService.zoomToFit();
-    }, 100);
+    }, 50);
   }
 
   async addNode(state: { name: string; description: string }) {
@@ -78,7 +78,7 @@ export class DfaDiagram {
     const lastNode = nodes[nodes.length - 1];
 
     const x = lastNode ? lastNode.position.x + 250 : 100;
-    const y = lastNode ? lastNode.position.y : 150;
+    const y = lastNode ? lastNode.position.y : 0;
 
     const newNode: Node = {
       id: state.name + Date.now(),
@@ -87,5 +87,9 @@ export class DfaDiagram {
     };
 
     this.modelService.addNodes([newNode]);
+
+    setTimeout(() => {
+      this.viewportService.zoomToFit();
+    }, 50);
   }
 }

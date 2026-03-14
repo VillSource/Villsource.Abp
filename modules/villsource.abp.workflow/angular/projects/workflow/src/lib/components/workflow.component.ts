@@ -10,75 +10,130 @@ import { DfaDiagram } from '../dfa-diagram/dfa-diagram';
 
 @Component({
   selector: 'lib-workflow',
-  template: `
-    @if (diagramVisible) {
-      <div style="margin-bottom: 1rem;">
-        <h3>Currently editing: {{ selectedMachine?.name }}</h3>
-        <p-button
-          label="Close Diagram"
-          severity="secondary"
-          (click)="diagramVisible = false"
-        ></p-button>
-        <p-button
-          label="Add State"
-          (click)="showStateDialog()"
-          style="margin-left: 0.5rem;"
-        ></p-button>
-      </div>
-      <lib-dfa-diagram
-        id="state-machine-diagram"
-        class="h-1/2"
-        [stateInput]="addStateEvent()"
-        [initialStates]="selectedStates()"
-      ></lib-dfa-diagram>
+  styles: [`
+    .workflow-wrapper {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 100px); /* Adjust based on common header height if any */
+      width: 100%;
+      overflow: hidden;
     }
-
-    <div style="margin-top: 1rem; margin-bottom: 1rem;">
-      <p-button label="Add State Machine" (click)="showDialog()"></p-button>
-    </div>
-
-    <div class="card">
-      <p-table
-        [value]="stateMachines"
-        [lazy]="true"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        [paginator]="true"
-        [rows]="5"
-        [rowsPerPageOptions]="[5, 10, 20]"
-        [totalRecords]="totalRecords"
-        (onLazyLoad)="loadData($event)"
-        [loading]="loading"
-      >
-        <ng-template #header>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>States</th>
-            <th>Created By</th>
-            <th>Created Date</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-machine>
-          <tr>
-            <td>{{ machine.id }}</td>
-            <td>{{ machine.name }}</td>
-            <td>{{ machine.description }}</td>
-            <td>{{ machine.stateCount }}</td>
-            <td>{{ machine.creatorId }}</td>
-            <td>{{ machine.creationTime | date: 'short' }}</td>
-            <td>
+    .diagram-panel {
+      height: 40%;
+      border-bottom: 2px solid #e2e8f0;
+      background: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .list-panel {
+      height: 60%;
+      overflow-y: auto;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .list-panel.full-height {
+      height: 100%;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .diagram-container {
+      flex: 1;
+      min-height: 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+    }
+  `],
+  template: `
+    <div class="workflow-wrapper">
+      @if (diagramVisible) {
+        <div class="diagram-panel">
+          <div class="section-header">
+            <h3 style="margin: 0;">Currently editing: {{ selectedMachine?.name }}</h3>
+            <div>
               <p-button
-                icon="pi pi-external-link"
-                label="Show Diagram"
+                label="Close Diagram"
+                severity="secondary"
+                icon="pi pi-times"
                 [text]="true"
-                (click)="showDiagram(machine)"
+                (click)="diagramVisible = false"
               ></p-button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+              <p-button
+                label="Add State"
+                icon="pi pi-plus"
+                (click)="showStateDialog()"
+                style="margin-left: 0.5rem;"
+              ></p-button>
+            </div>
+          </div>
+          <div class="diagram-container">
+            <lib-dfa-diagram
+              id="state-machine-diagram"
+              style="height: 100%; width: 100%; display: block;"
+              [stateInput]="addStateEvent()"
+              [initialStates]="selectedStates()"
+            ></lib-dfa-diagram>
+          </div>
+        </div>
+      }
+
+      <div class="list-panel" [class.full-height]="!diagramVisible">
+        <div class="section-header">
+          <h2 style="margin: 0;">State Machines</h2>
+          <p-button label="New State Machine" icon="pi pi-plus" (click)="showDialog()"></p-button>
+        </div>
+
+        <div class="card" style="margin-top: 1rem;">
+          <p-table
+            [value]="stateMachines"
+            [lazy]="true"
+            [tableStyle]="{ 'min-width': '50rem' }"
+            [paginator]="true"
+            [rows]="5"
+            [rowsPerPageOptions]="[5, 10, 20]"
+            [totalRecords]="totalRecords"
+            (onLazyLoad)="loadData($event)"
+            [loading]="loading"
+          >
+            <ng-template #header>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>States</th>
+                <th>Created By</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-machine>
+              <tr>
+                <td>{{ machine.id }}</td>
+                <td>{{ machine.name }}</td>
+                <td>{{ machine.description }}</td>
+                <td>{{ machine.stateCount }}</td>
+                <td>{{ machine.creatorId }}</td>
+                <td>{{ machine.creationTime | date: 'short' }}</td>
+                <td>
+                  <p-button
+                    icon="pi pi-external-link"
+                    label="Show Diagram"
+                    [text]="true"
+                    (click)="showDiagram(machine)"
+                  ></p-button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
     </div>
 
     <p-dialog
