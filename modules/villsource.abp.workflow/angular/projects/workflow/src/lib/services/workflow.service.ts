@@ -75,6 +75,16 @@ export class WorkflowService {
       { apiName: this.apiName },
     );
   }
+
+  deleteState(id: string) {
+    return this.restService.request<void, void>(
+      {
+        method: 'DELETE',
+        url: `/api/app/state-machine/${id}/state`,
+      },
+      { apiName: this.apiName },
+    );
+  }
 }
 
 export interface StateMachineListDto {

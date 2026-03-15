@@ -108,6 +108,7 @@ import { provideNgDiagram } from 'ng-diagram';
         <lib-workflow-properties
           [syncing]="positionSyncing()"
           (saved)="refreshStates()"
+          (deleted)="onStateDeleted($event)"
         ></lib-workflow-properties>
 
         <div class="section-header">
@@ -301,6 +302,13 @@ export class WorkflowComponent {
       this.service.getStates(this.selectedMachine.id).subscribe(states => {
         this.selectedStates.set(states);
       });
+    }
+  }
+
+  onStateDeleted(stateId: string) {
+    this.selectedStates.set(this.selectedStates().filter(s => s.id !== stateId));
+    if (this.selectedMachine) {
+      this.selectedMachine.stateCount = Math.max(0, this.selectedMachine.stateCount - 1);
     }
   }
 

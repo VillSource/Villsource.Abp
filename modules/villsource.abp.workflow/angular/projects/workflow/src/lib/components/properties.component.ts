@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, output, effect, untracked, input } from '@angular/core';
+import { Component, computed, inject, signal, output, effect, untracked, input, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,8 +7,9 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { DividerModule } from 'primeng/divider';
 import { TextareaModule } from 'primeng/textarea';
 import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { NgDiagramModelService, NgDiagramSelectionService } from 'ng-diagram';
 import { WorkflowService } from '../services/workflow.service';
 
@@ -25,10 +26,12 @@ import { WorkflowService } from '../services/workflow.service';
     TextareaModule,
     ButtonModule,
     ToastModule,
+    ConfirmDialogModule,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   template: `
     <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
     <p-card *ngIf="selectedNode() || selectedEdge()" styleClass="properties-card">
       <ng-template pTemplate="header">
         <div class="properties-header">
@@ -81,6 +84,15 @@ import { WorkflowService } from '../services/workflow.service';
               <span *ngIf="syncing()" class="sync-indicator">
                 <i class="pi pi-spin pi-spinner"></i> Syncing position...
               </span>
+              <p-button 
+                label="Delete State" 
+                icon="pi pi-trash" 
+                severity="danger"
+                [outlined]="true"
+                [disabled]="syncing() || deleting()"
+                [loading]="deleting()"
+                (click)="confirmDelete()"
+              ></p-button>
               <p-button 
                 label="Save Changes" 
                 icon="pi pi-save" 
@@ -205,9 +217,11 @@ export class PropertiesComponent {
   private selectionService = inject(NgDiagramSelectionService);
   private workflowService = inject(WorkflowService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   syncing = input<boolean>(false);
   saved = output<void>();
+  deleted = output<string>();
 
   selection = this.selectionService.selection;
   selectedNode = computed(() => this.selection().nodes[0] ?? null);
@@ -218,6 +232,18 @@ export class PropertiesComponent {
   editName = '';
   editDescription = '';
   saving = signal(false);
+  deleting = signal(false);
+
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Delete' && this.selectedNode() && !this.saving() && !this.deleting() && !this.syncing()) {
+      // Don't trigger if user is typing in an input/textarea
+      const tag = (event.target as HTMLElement)?.tagName?.toLowerCase();
+      if (tag !== 'input' && tag !== 'textarea') {
+        this.confirmDelete();
+      }
+    }
+  }
 
   constructor() {
     effect(() => {
@@ -292,6 +318,47 @@ export class PropertiesComponent {
           detail: detail
         });
       }
+    });
+  }
+
+  confirmDelete() {
+    const node = this.selectedNode();
+    if (!node) return;
+    const data = node.data as any;
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete the state "${data.label}"? This action cannot be undone.`,
+      header: 'Delete State',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteNode(),
+    });
+  }
+
+  deleteNode() {
+    const node = this.selectedNode();
+    if (!node) return;
+    this.deleting.set(true);
+    this.workflowService.deleteState(node.id).subscribe({
+      next: () => {
+        this.deleting.set(false);
+        this.modelService.deleteNodes([node.id]);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Deleted',
+          detail: 'State deleted successfully',
+        });
+        this.deleted.emit(node.id);
+      },
+      error: () => {
+        this.deleting.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to delete state.',
+        });
+      },
     });
   }
 

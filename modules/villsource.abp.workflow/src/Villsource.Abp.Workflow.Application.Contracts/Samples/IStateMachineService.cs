@@ -75,4 +75,5 @@ public interface IStateMachineService : IApplicationService
     Task<PagedResultDto<StateMachineListDto>> GetListAsync(PagedAndSortedResultRequestDto input);
     Task<List<StateListDto>> GetStatesAsync(Guid stateMachineId);
     Task UpdateState(Guid id, UpdateStateDto input);
+    Task DeleteState(Guid id);
 }

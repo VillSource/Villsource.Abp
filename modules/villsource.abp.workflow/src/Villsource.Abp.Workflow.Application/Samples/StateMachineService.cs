@@ -116,4 +116,9 @@ public class StateMachineService : WorkflowAppService, IStateMachineService
         entity.ConcurrencyStamp = input.ConcurrencyStamp;
         await _stateRepository.UpdateAsync(entity, autoSave: true);
     }
+
+    public async Task DeleteState(Guid id)
+    {
+        await _stateRepository.DeleteAsync(id, autoSave: true);
+    }
 }
