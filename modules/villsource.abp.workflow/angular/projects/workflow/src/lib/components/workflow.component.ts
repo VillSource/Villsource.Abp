@@ -130,7 +130,7 @@ import { provideNgDiagram } from 'ng-diagram';
           >
             <ng-template #header>
               <tr>
-                <th>ID</th>
+                <!-- <th>ID</th> -->
                 <th>Name</th>
                 <th>Description</th>
                 <th>States</th>
@@ -141,7 +141,7 @@ import { provideNgDiagram } from 'ng-diagram';
             </ng-template>
             <ng-template #body let-machine>
               <tr>
-                <td>{{ machine.id }}</td>
+                <!-- <td>{{ machine.id }}</td> -->
                 <td>{{ machine.name }}</td>
                 <td>{{ machine.description }}</td>
                 <td>{{ machine.stateCount }}</td>
